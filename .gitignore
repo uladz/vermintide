@@ -39,3 +39,9 @@ luac.out
 *.x86_64
 *.hex
 
+# Log / config files
+*.log
+*.ini
+
+# Project-specific files
+mods/patch/storage/*
