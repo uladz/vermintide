@@ -3,6 +3,10 @@ local mod_name = "TrueflightTweaks"
 	authors: walterr
 
 	Tweaks for the Trueflight Bow.
+
+	Update 6/1/2020: Bugfix by VernonKun.
+	This mod fixes the bug of QOL's Trueflight Tweaks mod that when Sienna bot uses Bolt Staff the
+	host will see a pair of extra floating arms around the bot.
 --]]
 
 local user_setting = Application.user_setting
@@ -143,7 +147,11 @@ Mods.hook.set(mod_name, "ActionTrueFlightBowAim.client_owner_post_update", funct
 
 	-- If this is the Bolt Staff, hide the BW's hands for part of the charging animation so the
 	-- left hand doesn't block line of sight.
-	if self.current_action.anim_event == "attack_charge_spear" and user_setting(MOD_SETTINGS.BOLT_STAFF_HIDE_HANDS.save) then
+	local owner_unit = self.owner_unit
+	local owner_player = Managers.player:owner(owner_unit)
+	local is_bot = owner_player and owner_player.bot_player
+
+	if self.current_action.anim_event == "attack_charge_spear" and user_setting(MOD_SETTINGS.BOLT_STAFF_HIDE_HANDS.save) and not is_bot then
 		local charge_value = self.charge_value
 		local should_hide_hand = (0.25 < charge_value) and (charge_value < 0.95)
 		local is_third_person_mod = Mods.ThirdPerson and Mods.ThirdPerson.SETTINGS and Mods.ThirdPerson.SETTINGS.ACTIVE and Mods.ThirdPerson.SETTINGS.ACTIVE.save and user_setting(Mods.ThirdPerson.SETTINGS.ACTIVE.save)
