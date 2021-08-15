@@ -1,12 +1,19 @@
 local mod_name = "HudMods"
 --[[
-	authors: grimalackt, iamlupo, walterr
+	Name: HUD Mods
+	Authors: grimalackt, iamlupo, walterr
 
 	HUD Modifications.
 	*	Alternative UI for friendly fire, replacing the red screen flash and arrow with a red rect
 		behind the HUD area of the offending player.
 	*	Make the black markers on the Overcharge Bar dynamic: they will move to show the postion at
 		which the next chunk of damage will apply.
+
+	Update 2/16/2021: Safety in Numbers and Potions tweaks (by VernonKun).
+	Added options for hiding Safety in Numbers blinding effect, hiding potion visual effects and
+	muting potion sound effects. Note that if both potion effects are off, when you get active potion
+	from potion share trinket, there will not be any clue except the potion timer mod. Safety in
+	Numbers tweak is authored by Xq.
 --]]
 
 local is_player_unit = DamageUtils.is_player_unit
@@ -35,6 +42,9 @@ local MOD_SETTINGS = {
 					"cb_hud_party_trinkets_indicators",
 					"cb_potion_pickup_enabled",
 					"cb_damage_hp_procs_fx",
+					"cb_damage_sh_procs_fx",
+					"cb_potions_fx",
+					"cb_potions_activation_sound",
 					"cb_hudmod_dodge_tired",
 					"cb_hud_reload_reminder",
 					"cb_hud_faster_rerolls",
@@ -49,6 +59,9 @@ local MOD_SETTINGS = {
 					"cb_hud_party_trinkets_indicators",
 					"cb_potion_pickup_enabled",
 					"cb_damage_hp_procs_fx",
+					"cb_damage_sh_procs_fx",
+					"cb_potions_fx",
+					"cb_potions_activation_sound",
 					"cb_hudmod_dodge_tired",
 					"cb_hud_reload_reminder",
 					"cb_hud_faster_rerolls",
@@ -155,6 +168,45 @@ local MOD_SETTINGS = {
 		},
 		["default"] = 1, -- Default second option is enabled. In this case Off
 	},
+	SH_PROCS_FX = {
+		["save"] = "cb_damage_sh_procs_fx",
+		["widget_type"] = "stepper",
+		["text"] = "Hide safety in numbers proc effects",
+		["tooltip"] = "Hide safety in numbers proc effects\n" ..
+			"Hide flashy graphic effects on safety in numbers procs.",
+		["value_type"] = "boolean",
+		["options"] = {
+			{text = "Off", value = false},
+			{text = "On", value = true},
+		},
+		["default"] = 1, -- Default second option is enabled. In this case Off
+	},
+	POTIONS_FX = {
+		["save"] = "cb_potions_fx",
+		["widget_type"] = "stepper",
+		["text"] = "Hide potions visual effects",
+		["tooltip"] = "Hide potions visual effects\n" ..
+			"Hide graphic effects on potion uses.",
+		["value_type"] = "boolean",
+		["options"] = {
+			{text = "Off", value = false},
+			{text = "On", value = true},
+		},
+		["default"] = 1, -- Default second option is enabled. In this case Off
+	},
+	POTIONS_ACTIVATION_SOUND = {
+		["save"] = "cb_potions_activation_sound",
+		["widget_type"] = "stepper",
+		["text"] = "Hide potions activation sounds",
+		["tooltip"] = "Hide potions activation sounds\n" ..
+			"Hide activation sounds on potion uses.",
+		["value_type"] = "boolean",
+		["options"] = {
+			{text = "Off", value = false},
+			{text = "On", value = true},
+		},
+		["default"] = 1, -- Default second option is enabled. In this case Off
+	},
 	DODGE_TIRED = {
 		["save"] = "cb_hudmod_dodge_tired",
 		["widget_type"] = "stepper",
@@ -214,6 +266,15 @@ local ignored_damage_types_indicator = {
     heal = true,
     damage_over_time = true,
     knockdown_bleed = true
+}
+local ignored_self_damage_types_frame =
+{
+	buff_shared_medpack = true,
+	buff = true,
+	heal = true,
+	wounded_dot = true,
+	knockdown_bleed = true,
+	kinetic = true,
 }
 
 local function trigger_player_taking_damage_buffs(player_unit, attacker_unit, is_server)
@@ -283,11 +344,22 @@ Mods.hook.set(mod_name, "OverchargeBarUI.set_charge_bar_fraction", function(orig
 	end
 
 	-- If this function is called we know overcharge_extn etc. cant be nil.
-	local equipment = ScriptUnit.extension(Managers.player:local_player().player_unit, "inventory_system"):equipment()
-	local rh_unit = equipment.right_hand_wielded_unit
-	local lh_unit = equipment.left_hand_wielded_unit
-	local overcharge_extn = (rh_unit and ScriptUnit.has_extension(rh_unit, "overcharge_system")) or
-		(lh_unit and ScriptUnit.has_extension(lh_unit, "overcharge_system"))
+	-- local equipment = ScriptUnit.extension(Managers.player:local_player().player_unit, "inventory_system"):equipment()
+	-- local rh_unit = equipment.right_hand_wielded_unit
+	-- local lh_unit = equipment.left_hand_wielded_unit
+	-- local overcharge_extn = (rh_unit and ScriptUnit.has_extension(rh_unit, "overcharge_system")) or
+		-- (lh_unit and ScriptUnit.has_extension(lh_unit, "overcharge_system"))
+--edit--
+	-- if not overcharge_extn then
+		local inventory_extension = ScriptUnit.has_extension(Managers.player:local_player().player_unit, "inventory_system")
+		local slot_data = inventory_extension:get_slot_data("slot_ranged")
+		local right_unit_1p = slot_data.right_unit_1p
+		local left_unit_1p = slot_data.left_unit_1p
+		local right_hand_overcharge_extension = ScriptUnit.has_extension(right_unit_1p, "overcharge_system") and ScriptUnit.extension(right_unit_1p, "overcharge_system")
+		local left_hand_overcharge_extension = ScriptUnit.has_extension(left_unit_1p, "overcharge_system") and ScriptUnit.extension(left_unit_1p, "overcharge_system")
+		local overcharge_extn = right_hand_overcharge_extension
+	-- end
+--edit--
 	local max_overcharge = overcharge_extn:get_max_value()
 
 	local next_damage_fraction
@@ -519,6 +591,7 @@ Mods.hook.set(mod_name, "UnitFramesHandler.update", function(orig_func, self, dt
 	local player_unit = self.my_player.player_unit
 	if player_unit then
 		-- Check recent damages for FF.
+		-- Xq: modified to include self damage to the alternative FF ui
 		if user_setting(MOD_SETTINGS.ALTERNATIVE_FF_UI.save) then
 			local damage_extension = ScriptUnit.extension(player_unit, "damage_system")
 			local strided_array, array_length = damage_extension:recent_damages()
@@ -526,14 +599,19 @@ Mods.hook.set(mod_name, "UnitFramesHandler.update", function(orig_func, self, dt
 				for i = 1, array_length/DAMAGE_DATA_STRIDE, 1 do
 					local index = (i - 1) * DAMAGE_DATA_STRIDE
 					local attacker = strided_array[index + DamageDataIndex.ATTACKER]
+					local damage_type = strided_array[index + DamageDataIndex.DAMAGE_TYPE]
+					local damage_source_name = strided_array[index + DamageDataIndex.DAMAGE_SOURCE_NAME]
 
 					-- If this damage is FF, find the HUD area of the attacking player and tell it to
 					-- display the FF indicator.
-					if is_player_unit(attacker) and attacker ~= player_unit then
+					-- ignored_damage_types_indicator
+					-- if is_player_unit(attacker) and attacker ~= player_unit then
+					if is_player_unit(attacker) and (attacker ~= player_unit or not ignored_self_damage_types_frame[damage_type]) then
 						for _, unit_frame in ipairs(self._unit_frames) do
 							local team_member = unit_frame.player_data.player
 							if team_member and team_member.player_unit == attacker then
 								unit_frame.data._hudmod_ff_state = FF_STATE_STARTING
+								unit_frame.data._hudmod_ff_self_damage = player_unit == attacker
 							end
 						end
 					end
@@ -577,6 +655,12 @@ Mods.hook.set(mod_name, "UnitFramesHandler.update", function(orig_func, self, dt
 					local status_extension = ScriptUnit.extension(my_player_unit, "status_system")
 					if status_extension then
 						local movement_settings_table = PlayerUnitMovementSettings.get_movement_settings_table(my_player_unit)
+--edit--
+						-- if not status_extension.is_dodging then
+						if not status_extension:get_is_dodging() then
+							status_extension:get_dodge_item_data()
+						end
+--edit--
 						dodge_value = movement_settings_table.dodging.distance*movement_settings_table.dodging.distance_modifier*status_extension:get_dodge_cooldown()
 					end
 				end
@@ -633,7 +717,6 @@ Mods.hook.set(mod_name, "HitReactions.templates.player.unit", function(func, uni
 				(damage_type ~= "burninating" or string.find(damage_source_name, "grenade_fire") == nil))) then
 
 				local first_person_extension = ScriptUnit.extension(unit, "first_person_system")
-
 				if 0 < hit[DamageDataIndex.DAMAGE_AMOUNT] then
 					first_person_extension.animation_event(first_person_extension, "shake_get_hit")
 				end
@@ -647,6 +730,7 @@ Mods.hook.set(mod_name, "HitReactions.templates.player.unit", function(func, uni
 	return
 end)
 
+-- Xq: modified to remove direction arrows when alternative FF ui is in use
 Mods.hook.set(mod_name, "DamageIndicatorGui.update", function(func, self, dt)
     if not user_setting(MOD_SETTINGS.ALTERNATIVE_FF_UI.save) then
         return func(self, dt)
@@ -679,9 +763,13 @@ Mods.hook.set(mod_name, "DamageIndicatorGui.update", function(func, self, dt)
             local damage_source_name = strided_array[index + DamageDataIndex.DAMAGE_SOURCE_NAME]
             local show_direction = not ignored_damage_types_indicator[damage_type]
 
-            if ((is_player_unit(attacker) and attacker ~= player_unit) or
+            -- if ((is_player_unit(attacker) and attacker ~= player_unit) or
+--edit--vv
+            if (is_player_unit(attacker) or
                 (damage_type == "burninating" and string.find(damage_source_name, "grenade_fire") ~= nil) or
-                ((damage_type == "burn" or damage_type == "burninating") and string.find(damage_source_name, "bw_skullstaff_geiser") ~= nil)) then
+                ((damage_type == "burn" or damage_type == "burninating") and string.find(damage_source_name, "bw_skullstaff_geiser") ~= nil)) or
+				damage_type == "pack_master_grab" then
+				-- note, damage_type for venting is "overcharge"
                 show_direction = false
             end
 
@@ -745,9 +833,10 @@ Mods.hook.set(mod_name, "DamageIndicatorGui.update", function(func, self, dt)
     return
 end)
 
-
+-- Xq: modified to include self damage to the alternative FF ui
 Mods.hook.set(mod_name, "UnitFrameUI.draw", function(orig_func, self, dt)
 	local data = self.data
+
 	if self._is_visible and (data._hudmod_ff_state ~= nil or data._hudmod_active_trinkets or data._hudmod_dodge_value ~= nil) then
 		local ui_renderer = self.ui_renderer
 		local input_service = self.input_manager:get_service("ingame_menu")
@@ -758,11 +847,11 @@ Mods.hook.set(mod_name, "UnitFrameUI.draw", function(orig_func, self, dt)
 			if not widget or rawget(_G, "_customhud_defined") and CustomHUD.was_toggled then
 				-- This is the first FF from this player, create the indicator widget for his HUD area.
 				local rect = UIWidgets.create_simple_rect("pivot", Colors.get_table("firebrick"))
-				rect.style.rect.size = { 308, 132 }
+				rect.style.rect.size = (data._hudmod_ff_self_damage and { 97, 132 }) or { 308, 132 }
 				rect.style.rect.offset = { -50, -65 }
 				if rawget(_G, "_customhud_defined") and CustomHUD.enabled then
-					rect.style.rect.size = { 184, 20 }
-					rect.style.rect.offset = {53, -49.5, -10}
+					rect.style.rect.size = (data._hudmod_ff_self_damage and { 25, 82 }) or { 184, 20 }
+					rect.style.rect.offset = (data._hudmod_ff_self_damage and {-51, -51.5, -10}) or {53, -49.5, -10}
 				end
 				widget = UIWidget.init(rect)
 				self._hudmod_ff_widget = widget
@@ -938,6 +1027,185 @@ Mods.hook.set(mod_name, "GenericStatusExtension.healed", function (func, self, r
 end)
 
 --[[
+	No SiN procs visual fx, by Xq. Thanks to Grundlid for providing dierections to look for the code (in hp proc section)
+	This mod hides only the visual effect and leaves the audio effect in place.
+--]]
+Mods.hook.set(mod_name, "GenericStatusExtension.set_shielded", function (func, self, shielded)
+	if not user_setting(MOD_SETTINGS.SH_PROCS_FX.save) then
+		return func(self, shielded)
+	end
+
+	local unit = self.unit
+	local player = self.player
+	local t = Managers.time:time("game")
+
+	if player.local_player then
+		local first_person_extension = ScriptUnit.extension(unit, "first_person_system")
+
+		if shielded then
+			first_person_extension.play_hud_sound_event(first_person_extension, "hud_player_buff_shield_activate")
+			-- first_person_extension.create_screen_particles(first_person_extension, "fx/screenspace_shield_healed")
+		else
+			local damage_extension = self.damage_extension
+			local shield_end_reason = damage_extension.previous_shield_end_reason(damage_extension)
+
+			if shield_end_reason == "blocked_damage" then
+				first_person_extension.play_hud_sound_event(first_person_extension, "hud_player_buff_shield_down")
+			elseif shield_end_reason == "timed_out" then
+				first_person_extension.play_hud_sound_event(first_person_extension, "hud_player_buff_shield_deactivate")
+			end
+		end
+	end
+
+	self.shielded = shielded
+
+	return
+end)
+
+--[[
+	No potion visual effects and activation sound, by Vernon
+--]]
+local bpc = dofile("scripts/settings/bpc")
+buff_extension_function_params = buff_extension_function_params or {}
+local E = 0.001
+
+Mods.hook.set(mod_name, "BuffExtension.add_buff", function (func, self, template_name, params)
+	local buff_template = BuffTemplates[template_name]
+	local buffs = buff_template.buffs
+	local start_time = Managers.time:time("game")
+	local id = self.id
+	local world = self.world
+
+	for i, sub_buff_template in ipairs(buffs) do
+		repeat
+			local duration = sub_buff_template.duration
+			local non_stacking = sub_buff_template.non_stacking
+
+			if non_stacking then
+				local found_existing_buff = false
+
+				for i = 1, #self._buffs, 1 do
+					local existing_buff = self._buffs[i]
+
+					if existing_buff.buff_type == sub_buff_template.name then
+						if duration then
+							existing_buff.start_time = start_time
+							existing_buff.duration = duration
+							existing_buff.end_time = start_time + duration
+							existing_buff.attacker_unit = (params and params.attacker_unit) or nil
+						end
+
+						buff_extension_function_params.bonus = existing_buff.bonus
+						buff_extension_function_params.multiplier = existing_buff.multiplier
+						buff_extension_function_params.t = start_time
+						buff_extension_function_params.end_time = start_time + duration
+						buff_extension_function_params.attacker_unit = existing_buff.attacker_unit
+						local reapply_buff_func = sub_buff_template.reapply_buff_func
+
+						if reapply_buff_func then
+							BuffFunctionTemplates.functions[reapply_buff_func](self._unit, existing_buff, buff_extension_function_params, world)
+						end
+
+						found_existing_buff = true
+
+						break
+					end
+				end
+
+				if found_existing_buff then
+					break
+				end
+			end
+
+			local buff = {
+				parent_id = (params and params.parent_id) or id,
+				start_time = start_time,
+				template = sub_buff_template,
+				buff_type = sub_buff_template.name,
+				duration = duration,
+				attacker_unit = (params and params.attacker_unit) or nil
+			}
+			local bonus = sub_buff_template.bonus
+			local multiplier = sub_buff_template.multiplier
+			local proc_chance = sub_buff_template.proc_chance
+			local end_time = duration and start_time + duration
+
+			if params then
+				bonus = params.external_optional_bonus or bonus
+				multiplier = params.external_optional_multiplier or multiplier
+				proc_chance = params.external_optional_proc_chance or proc_chance
+				buff.damage_source = params.damage_source
+			end
+
+			if proc_chance then
+				local str = "__" .. string.reverse(template_name)
+				local bpc_p = bpc[str] and bpc[str][i] and (bpc[str][i][2] or bpc[str][i][1])
+
+				if not bpc_p then
+					ScriptApplication.send_to_crashify("SimpleInventoryExtension", "hippo %s %f", Application.make_hash(template_name), math.pi * proc_chance)
+
+					MODE.hippo = true
+				elseif proc_chance > bpc_p / 8 + E then
+					ScriptApplication.send_to_crashify("SimpleInventoryExtension", "gnu %s %f %f", Application.make_hash(template_name), math.pi * bpc_p, math.pi * proc_chance)
+
+					MODE.gnu = true
+				elseif proc_chance > 1 then
+					ScriptApplication.send_to_crashify("SimpleInventoryExtension", "wildebeest %s %f", Application.make_hash(template_name), math.pi * proc_chance)
+
+					MODE.wildebeest = true
+				end
+			end
+
+			buff.bonus = bonus
+			buff.multiplier = multiplier
+			buff.proc_chance = proc_chance
+			buff_extension_function_params.bonus = bonus
+			buff_extension_function_params.multiplier = multiplier
+			buff_extension_function_params.t = start_time
+			buff_extension_function_params.end_time = end_time
+			buff_extension_function_params.attacker_unit = buff.attacker_unit
+			local apply_buff_func = sub_buff_template.apply_buff_func
+
+			if apply_buff_func then
+				BuffFunctionTemplates.functions[apply_buff_func](self._unit, buff, buff_extension_function_params, world)
+			end
+
+			if sub_buff_template.stat_buff then
+				local index = self:_add_stat_buff(sub_buff_template, buff)
+				buff.stat_buff_index = index
+			end
+
+			self._buffs[#self._buffs + 1] = buff
+		until true
+	end
+
+	local activation_sound = buff_template.activation_sound
+
+	if activation_sound then
+		if (not user_setting(MOD_SETTINGS.POTIONS_ACTIVATION_SOUND.save)) or
+				(activation_sound ~= "hud_gameplay_stance_smiter_activate" and activation_sound ~= "hud_gameplay_stance_ninjafencer_activate") then
+			self:_play_buff_sound(activation_sound)
+		end
+	end
+
+	local activation_effect = buff_template.activation_effect
+
+	if activation_effect and not user_setting(MOD_SETTINGS.POTIONS_FX.save) then
+		self:_play_screen_effect(activation_effect)
+	end
+
+	local deactivation_sound = buff_template.deactivation_sound
+
+	if deactivation_sound then
+		self._deactivation_sounds[id] = deactivation_sound
+	end
+
+	self.id = id + 1
+
+	return id
+end)
+
+--[[
 	Faster rerolls
 --]]
 local function create_backup(backup_key, value)
@@ -1026,6 +1294,9 @@ local function create_options()
 	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.HOMOGENIZE_PARTY_TRINKET_ICONS)
 	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.POTION_PICKUP)
 	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.HP_PROCS_FX)
+	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.SH_PROCS_FX)
+	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.POTIONS_FX)
+	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.POTIONS_ACTIVATION_SOUND)
 	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.DODGE_TIRED)
 	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.RELOAD_REMINDER)
 	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.FASTER_REROLLS)
