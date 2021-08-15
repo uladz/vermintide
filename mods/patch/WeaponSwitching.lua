@@ -1,3 +1,17 @@
+--[[
+	Name: Weapon Switching Fix.
+	Author: Grimalackt (presumably)
+	Version: QoL v15
+
+	Fixes cases of weapon switch input not being queued up properly, and weapons refusing to switch
+	when holding the right mouse button.
+
+	Update 1/5/2020: Berserking Buff update (by VernonKun).
+	WeaponSwitching.lua in QOL seems to be missing the code that activates the buff of Berserking that
+	melee attacks become uninterruptible. The file here is updated based on the source code found in:
+	https://github.com/Aussiemon/Vermintide-1-Source-Code/blob/master/scripts/unit_extensions/default_player_unit/states/player_character_state_helper.lua
+--]]
+
 local mod_name = "WeaponSwitching"
 
 local oi = OptionsInjector
@@ -79,6 +93,9 @@ Mods.hook.set(mod_name, "CharacterStateHelper.update_weapon_actions", function(f
 	end
 
 	local new_action, new_sub_action, current_action_settings, current_action_extension, current_action_hand = nil
+--edit--
+	local buff_extension = ScriptUnit.extension(unit, "buff_system")
+--edit--
 	current_action_settings, current_action_extension, current_action_hand = CharacterStateHelper._get_current_action_data(left_hand_weapon_extension, right_hand_weapon_extension)
 	local item_template = BackendUtils.get_item_template(item_data)
 	local recent_damage_type = damage_extension.recently_damaged(damage_extension)
@@ -99,13 +116,20 @@ Mods.hook.set(mod_name, "CharacterStateHelper.update_weapon_actions", function(f
 				reloading = right_hand_weapon_extension.ammo_extension:is_reloading()
 			end
 		end
-
+--edit--
+--[[
 		if (current_action_settings and current_action_settings.uninterruptible) or script_data.uninterruptible or reloading or is_bot_player then
 			can_interrupt = false
 		else
 			can_interrupt = status_extension.hitreact_interrupt(status_extension)
 		end
-
+--]]
+		if (buff_extension and buff_extension:has_buff_type("damage_reduction_from_proc")) or (current_action_settings and current_action_settings.uninterruptible) or script_data.uninterruptible or reloading or is_bot_player then
+			can_interrupt = false
+		else
+			can_interrupt = status_extension.hitreact_interrupt(status_extension)
+		end
+--edit--
 		if can_interrupt and not status_extension.is_disabled(status_extension) then
 			if current_action_settings then
 				current_action_extension.stop_action(current_action_extension, "interrupted")
