@@ -163,7 +163,7 @@ mod.create_options = function(self)
 	Mods.option_menu:add_item("visible_3p_equipment", self.widget_settings.DWARF_ONE_HANDED_WEAPONS_POSITION)
 	Mods.option_menu:add_item("visible_3p_equipment", self.widget_settings.WAYWATCHER_DUAL_WEAPONS_POSITION)
 	Mods.option_menu:add_item("visible_3p_equipment", self.widget_settings.DOWNSCALE_BIG_WEAPONS)
-	
+
 	self.options[self.widget_settings.DWARF_WEAPONS_POSITION.save] = self.get(self.widget_settings.DWARF_WEAPONS_POSITION.save)
 	self.options[self.widget_settings.DWARF_ONE_HANDED_WEAPONS_POSITION.save] = self.get(self.widget_settings.DWARF_ONE_HANDED_WEAPONS_POSITION.save)
 	self.options[self.widget_settings.WAYWATCHER_DUAL_WEAPONS_POSITION.save] = self.get(self.widget_settings.WAYWATCHER_DUAL_WEAPONS_POSITION.save)
@@ -227,20 +227,20 @@ mod.spawn = function(self, package_name, unit, item_setting)
 	local world = Managers.world:world("level_world")
 	local unit_spawner = Managers.state.unit_spawner
 	local node = Unit.node(unit, item_setting.node)
-	
+
 	s_unit = World.spawn_unit(world, package_name)
 	World.link_unit(world, s_unit, unit, node)
 	equipment_3p_spawned_items[s_unit] = s_unit
-	
+
 	local i_pos = item_setting.position
 	local pos_offset = i_pos ~= nil and Vector3(i_pos[1], i_pos[2], i_pos[3]) or Vector3(0,0,0)
 	Unit.teleport_local_position(s_unit, 0, pos_offset)
-	
+
 	local i_rot = item_setting.rotation
 	local rot_offset = i_rot ~= nil and Vector3(i_rot[1], i_rot[2], i_rot[3]) or Vector3(0,0,0)
 	local rotation = Quaternion.from_euler_angles_xyz(rot_offset[1], rot_offset[2], rot_offset[3])
-	Unit.teleport_local_rotation(s_unit, 0, rotation) 
-	
+	Unit.teleport_local_rotation(s_unit, 0, rotation)
+
 	-- Hardcoded scaling
 	local grim = "units/weapons/player/wpn_grimoire_01/wpn_grimoire_01_3p"
 	local tome = "units/weapons/player/wpn_side_objective_tome/wpn_side_objective_tome_01_3p"
@@ -260,7 +260,7 @@ mod.spawn = function(self, package_name, unit, item_setting)
 	local repeat2 = "units/weapons/player/wpn_empire_pistol_repeater/wpn_empire_pistol_repeater_t2_3p"
 	local repeat3 = "units/weapons/player/wpn_empire_pistol_repeater/wpn_empire_pistol_repeater_t3_3p"
 	if package_name == volley1 or package_name == volley2 or package_name == volley3 or
-			package_name == xbow1 or package_name == xbow2 or package_name == xbow3 or 
+			package_name == xbow1 or package_name == xbow2 or package_name == xbow3 or
 			package_name == repeat1 or package_name == repeat2 or package_name == repeat3 then
 		local z_scale = scaling >= 0.75 and scaling - 0.25 or scaling
 		local scale = Vector3(scaling, scaling, z_scale)
@@ -270,7 +270,7 @@ mod.spawn = function(self, package_name, unit, item_setting)
 		local scale = Vector3(scaling, scaling, scaling)
 		Unit.teleport_local_scale(s_unit, 0, scale)
 	end
-	
+
 	return s_unit
 end
 --[[
@@ -283,7 +283,7 @@ mod.get_item_setting = function(self, unit, slot_name, item_data, left)
 	-- ####### Fixes and options #######
 	safe_pcall(function()
 	if slot_name == "slot_melee" or slot_name == "slot_ranged" then
-		
+
 		-- Dwarf
 		if table.contains(def.dwarf_weapons, item_data.item_type) then
 			local dwarf_weapon_position = self.get(self.widget_settings.DWARF_WEAPONS_POSITION.save)
@@ -303,7 +303,7 @@ mod.get_item_setting = function(self, unit, slot_name, item_data, left)
 				end
 			end
 		end
-		
+
 		-- One-Handed
 		if table.contains(def.one_handed, item_data.item_type) then
 			local dwarf_one_handed_weapon_position = self.get(self.widget_settings.DWARF_ONE_HANDED_WEAPONS_POSITION.save)
@@ -327,7 +327,7 @@ mod.get_item_setting = function(self, unit, slot_name, item_data, left)
 				end
 			end
 		end
-		
+
 		-- Waywatcher
 		if table.contains(def.waywatcher_dual, item_data.item_type) then
 			local dwarf_weapon_position = self.get(self.widget_settings.WAYWATCHER_DUAL_WEAPONS_POSITION.save)
@@ -347,14 +347,14 @@ mod.get_item_setting = function(self, unit, slot_name, item_data, left)
 				end
 			end
 		end
-		
+
 		-- Default
 		if not left then
 			item_setting = item_setting or def[item_data.item_type].right
 		else
 			item_setting = item_setting or def[item_data.item_type].left
 		end
-		
+
 	else
 		local profile_name = self.current.profile[unit] or nil
 		if profile_name then
@@ -368,14 +368,14 @@ mod.get_item_setting = function(self, unit, slot_name, item_data, left)
 		end
 	end
 	end)
-	
+
 	-- Default values
 	if not left then
 		item_setting = item_setting or def.default.right
 	else
 		item_setting = item_setting or def.default.left
 	end
-	
+
 	return item_setting
 end
 mod.add_item = function(self, unit, slot_name, item_data)
@@ -394,7 +394,7 @@ mod.add_item = function(self, unit, slot_name, item_data)
 			left_pack = item_units.left_hand_unit.."_3p"
 			left = self:spawn(left_pack, unit, item_setting)
 		end
-		
+
 		self.current.equipment[unit] = self.current.equipment[unit] or {}
 		self.current.equipment[unit][#self.current.equipment[unit]+1] = {
 			right = right,
@@ -416,7 +416,7 @@ mod.add_all_items = function(self, unit)
 			local inventory_extension = ScriptUnit.extension(unit, "inventory_system")
 			local equipment = inventory_extension.equipment(inventory_extension)
 			for name, slot in pairs(equipment.slots) do
-                if (not self.get(self.widget_settings.PERFORMANCE_MODE.save) or 
+                if (not self.get(self.widget_settings.PERFORMANCE_MODE.save) or
                     (name == "slot_melee" or name == "slot_ranged")) then
                     mod:add_item(unit, name, slot.item_data)
                 end
@@ -567,7 +567,7 @@ Mods.hook.set(mod_name, "MatchmakingManager.update", function(func, self, dt, t)
 			if player then
 				local player_unit = player.player_unit
 				if player_unit ~= nil then
-				
+
 					local profile_synchronizer = Managers.state.network.profile_synchronizer
 					local profile_index = profile_synchronizer:profile_by_peer(player:network_id(), player:local_player_id())
 					mod.current.profile[player_unit] = SPProfiles[profile_index].unit_name

@@ -1,8 +1,8 @@
---[[ 
+--[[
 	Third person mode
 		- Does the necessary positioning of the camera
 		- Applies different fixes to certain situations
-	
+
 	Author: grasmann
 --]]
 local mod_name = "ThirdPerson"
@@ -19,7 +19,7 @@ Mods.ThirdPerson = {
 	},
 	
 	offset = { x = 0.6, y = -0.8, z = 0.1 },
-	
+
 	zoom = {
 		default = { default = 30, medium = 40, low = 50, off = 65, },
 		increased = { default = 16, medium = 30, low = 45, off = 65, },
@@ -37,7 +37,7 @@ Mods.ThirdPerson = {
 			return false
 		end
 	},
-	
+
 	SETTINGS = {
 		ACTIVE = {
 			["save"] = "cb_third_person_active",
@@ -247,7 +247,7 @@ local save = Application.save_user_settings
 -- ####################################################################################################################
 Mods.ThirdPerson.create_options = function()
 	Mods.option_menu:add_group("third_person", "Third Person")
-	
+
 	Mods.option_menu:add_item("third_person", me.SETTINGS.ACTIVE, true)
 	Mods.option_menu:add_item("third_person", me.SETTINGS.SIDE)
 	Mods.option_menu:add_item("third_person", me.SETTINGS.OFFSET)
@@ -281,26 +281,26 @@ end)
 	MAIN FUNCTION - Camera positioning
 --]]
 Mods.hook.set(mod_name, "CameraManager.post_update", function(func, self, dt, t, viewport_name)
-	
+
 	-- ##### Original function ########################################################################################
-	func(self, dt, t, viewport_name)			
-	
+	func(self, dt, t, viewport_name)
+
 	-- ##### Get data #############################################################################################
 		local viewport = ScriptWorld.viewport(self._world, viewport_name)
 		local camera = ScriptViewport.camera(viewport)
 		local shadow_cull_camera = ScriptViewport.shadow_cull_camera(viewport)
 		local camera_nodes = self._camera_nodes[viewport_name]
 		local current_node = self._current_node(self, camera_nodes)
-		local camera_data = self._update_transition(self, viewport_name, camera_nodes, dt)	
-		
+		local camera_data = self._update_transition(self, viewport_name, camera_nodes, dt)
+
 		-- ##### Change zoom #####
 		me.set_zoom_values(current_node)
-	
+
 	if get(me.SETTINGS.ACTIVE) then
 		-- ##### Check side ###########################################################################################
 		local offset = nil
 		local mult = get(me.SETTINGS.OFFSET) / 100
-		if mult == nil then mult = 1 end		
+		if mult == nil then mult = 1 end
 		if not get(me.SETTINGS.SIDE) then
 			offset = Vector3(me.offset.x, me.offset.y * mult, me.offset.z)
 		else
@@ -310,11 +310,11 @@ Mods.hook.set(mod_name, "CameraManager.post_update", function(func, self, dt, t,
 		camera_data.position = self._calculate_sequence_event_position(self, camera_data, offset)
 	end
 
-		-- ##### Update camera ########################################################################################		
+		-- ##### Update camera ########################################################################################
 		self._update_camera_properties(self, camera, shadow_cull_camera, current_node, camera_data, viewport_name)
-		self._update_sound_listener(self, viewport_name)		
-		ScriptCamera.force_update(self._world, camera)	
-	
+		self._update_sound_listener(self, viewport_name)
+		ScriptCamera.force_update(self._world, camera)
+
 end)
 --[[
 	Fix to apply camera offset to ranged weapons
@@ -332,15 +332,15 @@ Mods.hook.set(mod_name, "PlayerUnitFirstPerson.current_position", function(func,
 		else
 			offset = Vector3(-me.offset.x, 0, me.offset.z)
 		end
-		
+
 		-- ##### Change position ######################################################################################
 		local x = offset.x * Quaternion.right(current_rot)
 		local y = offset.y * Quaternion.forward(current_rot)
 		local z = Vector3(0, 0, offset.z)
-		position = position + x + y + z	
+		position = position + x + y + z
 		return position
 	end
-	
+
 	-- ##### Original function ########################################################################################
 	return func(self)
 end)
@@ -354,10 +354,10 @@ Mods.hook.set(mod_name, "PlayerUnitFirstPerson.update", function(func, self, uni
 		self.set_first_person_mode(self, not get(me.SETTINGS.ACTIVE))
 		me.reset = false
 	end
-	
+
 	-- ##### Original function ########################################################################################
 	func(self, unit, input, dt, context, t)
-	
+
 	if not me.is_first_person_blocked(self.unit) then
 		if get(me.SETTINGS.ACTIVE) then
 			-- ##### Disable first person #############################################################################
@@ -365,13 +365,13 @@ Mods.hook.set(mod_name, "PlayerUnitFirstPerson.update", function(func, self, uni
 				self.set_first_person_mode(self, false)
 				me.firstperson.value = false
 			end
-			
+
 			-- ##### Hide first person ammo ###########################################################################
 			local inventory_extension = ScriptUnit.extension(self.unit, "inventory_system")
 			local slot_data = inventory_extension.get_slot_data(inventory_extension, "slot_ranged")
 			if slot_data then
 				if slot_data.right_ammo_unit_1p then Unit.set_unit_visibility(slot_data.right_ammo_unit_1p, false) end
-				if slot_data.left_ammo_unit_1p then Unit.set_unit_visibility(slot_data.left_ammo_unit_1p, false) end	
+				if slot_data.left_ammo_unit_1p then Unit.set_unit_visibility(slot_data.left_ammo_unit_1p, false) end
 			end
 		else
 			-- ##### Enable first person ##############################################################################
@@ -381,7 +381,7 @@ Mods.hook.set(mod_name, "PlayerUnitFirstPerson.update", function(func, self, uni
 			end
 		end
 	end
-	
+
 end)
 
 -- ####################################################################################################################
@@ -406,7 +406,7 @@ end)
 --]]
 Mods.hook.set(mod_name, "CutsceneSystem.set_first_person_mode", function(func, self, enabled)
 	func(self, enabled)
-	
+
 	if enabled then
 		me.reset = true
 	end
@@ -414,7 +414,7 @@ end)
 
 Mods.hook.set(mod_name, "ProfileView.on_exit", function(func, ...)
 	func(...)
-	
+
 	if get(me.SETTINGS.ACTIVE) then
 		me.reset = true
 	end
@@ -440,7 +440,7 @@ Mods.ThirdPerson.set_zoom_values = function(current_node)
 		else
 			zoom_fov = me.zoom.default.default
 		end
-		current_node._vertical_fov = zoom_fov*degrees_to_radians				
+		current_node._vertical_fov = zoom_fov*degrees_to_radians
 	elseif current_node._name == "increased_zoom_in" then
 		if zoom_setting == 2 then
 			zoom_fov = me.zoom.increased.medium
@@ -452,7 +452,7 @@ Mods.ThirdPerson.set_zoom_values = function(current_node)
 			zoom_fov = me.zoom.increased.default
 		end
 		current_node._vertical_fov = zoom_fov*degrees_to_radians
-	end	
+	end
 end
 --[[
 	Check if first person is blocked
