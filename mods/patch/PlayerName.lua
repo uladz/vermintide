@@ -19,37 +19,11 @@ mod.set = Application.set_user_setting
 mod.save = Application.save_user_settings
 
 mod.widget_settings = {
-	SHOW = {
-		["save"] = "cb_player_name_show",
-		["widget_type"] = "checkbox",
-		["text"] = "Player Name",
-		["default"] = false,
-		["hide_options"] = {
-			{
-				false,
-				mode = "hide",
-				options = {
-					"cb_player_name_activate",
-					"cb_player_name_color",
-					"cb_player_name_alpha",
-				}
-			},
-			{
-				true,
-				mode = "show",
-				options = {
-					"cb_player_name_activate",
-					"cb_player_name_color",
-					"cb_player_name_alpha",
-				}
-			},
-		},
-	},
 	ACTIVATE = {
 		["save"] = "cb_player_name_activate",
 		["widget_type"] = "stepper",
-		["text"] = "Active",
-		["tooltip"] = "Active\n" ..
+		["text"] = "Show Player Name",
+		["tooltip"] = "Show Player Name\n" ..
 			"Shows the player name above player in the 3D world.",
 		["value_type"] = "boolean",
 		["options"] = {
@@ -115,12 +89,11 @@ mod.gui = nil
 -- ##### Options ######################################################################################################
 -- ####################################################################################################################
 mod.create_options = function()
-	Mods.option_menu:add_group("hud", "HUD")
+	Mods.option_menu:add_group("hud_group", "HUD Improvements")
 
-	Mods.option_menu:add_item("hud", mod.widget_settings.SHOW, true)
-	Mods.option_menu:add_item("hud", mod.widget_settings.ACTIVATE)
-	Mods.option_menu:add_item("hud", mod.widget_settings.COLOR)
-	Mods.option_menu:add_item("hud", mod.widget_settings.ALPHA)
+	Mods.option_menu:add_item("hud_group", mod.widget_settings.ACTIVATE, true)
+	Mods.option_menu:add_item("hud_group", mod.widget_settings.COLOR)
+	Mods.option_menu:add_item("hud_group", mod.widget_settings.ALPHA)
 end
 
 -- ####################################################################################################################
