@@ -48,7 +48,7 @@ Crosshair = {
 					},
 				},
 			},
-		},     
+		},
         COLOR_MAIN_RED = {
 		["save"] = "cb_crosshair_color_main_red",
 		["widget_type"] = "slider",
@@ -75,7 +75,7 @@ Crosshair = {
 				"Changes the blue color value of your crosshair.",
 		["range"] = {0, 255},
 		["default"] = 255,
-	    },     
+	    },
         COLOR_HS_RED = {
 		["save"] = "cb_crosshair_color_hs_red",
 		["widget_type"] = "slider",
@@ -102,7 +102,7 @@ Crosshair = {
 				"Changes the blue color value of your crosshair headshot marker.",
 		["range"] = {0, 255},
 		["default"] = 255,
-	    },       
+	    },
 		ENLARGE = {
 			["save"] = "cb_crosshair_enlarge",
 			["widget_type"] = "stepper",
@@ -202,7 +202,7 @@ local colors = {
 
 --- Options
 Crosshair.create_options = function()
-	Mods.option_menu:add_group("hud_group", "HUD Related Mods")
+	Mods.option_menu:add_group("hud_group", "HUD Improvements")
 
 	Mods.option_menu:add_item("hud_group", mod.SETTINGS.SUB_GROUP, true)
     Mods.option_menu:add_item("hud_group", mod.SETTINGS.COLOR_MAIN_RED)
@@ -388,7 +388,7 @@ end)
 
 local change_crosshair_color = function(crosshair_ui)
     local main_color = {255, get(mod.SETTINGS.COLOR_MAIN_RED), get(mod.SETTINGS.COLOR_MAIN_GREEN), get(mod.SETTINGS.COLOR_MAIN_BLUE)}
-    
+
     crosshair_ui.crosshair_dot.style.color = table.clone(main_color)
     crosshair_ui.crosshair_up.style.color = table.clone(main_color)
 	crosshair_ui.crosshair_down.style.color = table.clone(main_color)
@@ -438,7 +438,7 @@ Mods.hook.set(mod_name, "CrosshairUI.draw_dot_style_crosshair", function(func, s
 	populate_defaults(self)
 	change_crosshair_scale(self)
 	change_crosshair_color(self)
-    
+
     if get(mod.SETTINGS.NO_MELEE_DOT) then
         self.crosshair_dot.style.color[1] = 0;
 	end
@@ -450,7 +450,7 @@ Mods.hook.set(mod_name, "CrosshairUI.draw_default_style_crosshair", function(fun
 	populate_defaults(self)
 	change_crosshair_scale(self)
 	change_crosshair_color(self)
-    
+
     if get(mod.SETTINGS.DOT_ONLY) then
         crosshair_ui.crosshair_up.style.color[1] = 0
         crosshair_ui.crosshair_down.style.color[1] = 0

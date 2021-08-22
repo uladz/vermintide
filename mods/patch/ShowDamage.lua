@@ -303,7 +303,7 @@ local save = Application.save_user_settings
 	Create options
 --]]
 ShowPlayerDamage.create_options = function()
-	Mods.option_menu:add_group("hud_group", "HUD Related Mods")
+	Mods.option_menu:add_group("hud_group", "HUD Improvements")
 
 	Mods.option_menu:add_item("hud_group", me.SETTINGS.SUB_GROUP, true)
 

@@ -542,7 +542,7 @@ end)
 
 --- options
 safe_pcall(function()
-	Mods.option_menu:add_group("hud_group", "HUD Related Mods")
+	Mods.option_menu:add_group("hud_group", "HUD Improvements")
 
 	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.SUB_GROUP, true)
 	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.SCOREBOARD_FIXED_ORDER)

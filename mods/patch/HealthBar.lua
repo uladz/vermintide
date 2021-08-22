@@ -1,8 +1,8 @@
 local mod_name = "HealthBars"
---[[ 
+--[[
 	Enemy health bars
 		- Show health bars for enemies
-	
+
 	Author: grasmann
 --]]
 
@@ -59,7 +59,7 @@ EnemyHealthBars = {
 			["options"] = {
 				{text = "Off", value = 1},
 				{text = "All", value = 2},
-				{text = "Specials Only", value = 3}, 
+				{text = "Specials Only", value = 3},
 				{text = "Ogre Only", value = 4},
 				{text = "Custom", value = 5},
 			},
@@ -270,11 +270,11 @@ EnemyHealthBars = {
 		},
 	},
 
-	
+
 	VERY_FAR = 50,
-	
+
 	units = units_bak,
-	
+
 	specials = {
 		"skaven_gutter_runner",
 		"skaven_ratling_gunner",
@@ -284,7 +284,7 @@ EnemyHealthBars = {
 		"skaven_rat_ogre",
 		"skaven_loot_rat",
 	},
-	
+
 	offsets = {
 		default = 1.5,
 		skaven_slave = 3,
@@ -301,11 +301,11 @@ EnemyHealthBars = {
 		critter_pig = 2.5,
 		critter_rat = 0.5,
 	},
-	
+
 	sizes = {
 		default = {17*0.9, 7*0.9},
 		special = {17*1.4, 7*1.4},
-		ogre = {17*1.8, 7*1.8},		
+		ogre = {17*1.8, 7*1.8},
 	},
 }
 local me = EnemyHealthBars
@@ -425,8 +425,8 @@ EnemyHealthBars.set_offset = function(unit, tutorial_ui)
 	local player = Managers.player:local_player()
 	local world = tutorial_ui.world_manager:world("level_world")
 	local viewport = ScriptWorld.viewport(world, player.viewport_name)
-	local camera = ScriptViewport.camera(viewport)	
-	
+	local camera = ScriptViewport.camera(viewport)
+
 	for _, health_bar in pairs(tutorial_ui.health_bars) do
 		if health_bar.unit == unit then
 			-- Enemy position
@@ -448,7 +448,7 @@ EnemyHealthBars.set_offset = function(unit, tutorial_ui)
 			texture_bg.offset[2] = diff - texture_bg.size[2]/2
 			local texture_fg = health_bar.widget.style.texture_fg
 			texture_fg.offset[2] = diff - texture_fg.size[2]/2
-			
+
 			return true
 		end
 	end
@@ -465,9 +465,9 @@ EnemyHealthBars.add_health_bar_all = function(unit)
 	local breed = Unit.get_data(unit, "breed")
 	if not table.has_item2(me.units, unit) and breed ~= nil then
 		local tutorial_system = Managers.state.entity:system("tutorial_system")
-		local tutorial_ui = tutorial_system.tutorial_ui			
+		local tutorial_ui = tutorial_system.tutorial_ui
 		tutorial_ui:add_health_bar(unit)
-		me.units[unit] = unit		
+		me.units[unit] = unit
 	end
 end
 --[[
@@ -491,12 +491,12 @@ EnemyHealthBars.add_health_bar_custom = function(unit)
 	local breed = Unit.get_data(unit, "breed")
 	if not table.has_item2(me.units, unit) and breed ~= nil then
 		local add = false
-		
+
 		if breed.name == "skaven_slave"
 			and get(me.SETTINGS.SLAVE_RAT) then add = true end
 		if breed.name == "skaven_clan_rat"
 			and get(me.SETTINGS.CLAN_RAT) then add = true end
-		if (breed.name == "skaven_storm_vermin" 
+		if (breed.name == "skaven_storm_vermin"
 			or breed.name == "skaven_storm_vermin_commander")
 			and get(me.SETTINGS.STORMVERMIN) then add = true end
 		if breed.name == "skaven_gutter_runner"
@@ -513,7 +513,7 @@ EnemyHealthBars.add_health_bar_custom = function(unit)
 			and get(me.SETTINGS.SACK_RAT) then add = true end
 		if breed.name == "skaven_storm_vermin_champion"
 			and get(me.SETTINGS.CHAMPION) then add = true end
-		
+
 		if add then
 			local tutorial_system = Managers.state.entity:system("tutorial_system")
 			local tutorial_ui = tutorial_system.tutorial_ui
@@ -540,7 +540,7 @@ end
 --[[
 	Add a health bar to the specified unit
 --]]
-EnemyHealthBars.add_health_bar = function(unit)		
+EnemyHealthBars.add_health_bar = function(unit)
 	if get(me.SETTINGS.ACTIVE) == 2 then
 		me.add_health_bar_all(unit)
 	elseif get(me.SETTINGS.ACTIVE) == 3 then
@@ -558,7 +558,7 @@ EnemyHealthBars.remove_health_bar = function(unit)
 	if table.has_item2(me.units, unit) then
 		local tutorial_system = Managers.state.entity:system("tutorial_system")
 		local tutorial_ui = tutorial_system.tutorial_ui
-		tutorial_ui:remove_health_bar(unit)		
+		tutorial_ui:remove_health_bar(unit)
 		me.units[unit] = nil
 	end
 end
@@ -569,9 +569,9 @@ EnemyHealthBars.on_enemy_damage = function(health_extension)
 	if get(me.SETTINGS.ACTIVE) > 1 then
 		if GenericHealthExtension.current_health(health_extension) > 0 then
 			me.add_health_bar(health_extension.unit)
-		else			
+		else
 			me.remove_health_bar(health_extension.unit)
-		end		
+		end
 	else
 		me.remove_health_bar(health_extension.unit)
 	end
@@ -601,7 +601,7 @@ local obstructed_line_of_sight = function(player_unit, target_unit)
 	local world = tutorial_ui.world_manager:world("level_world")
 	local physics_world = World.get_data(world, "physics_world")
 	local max_distance = Vector3.length(target_unit_pos - player_unit_pos)
-	
+
 	if max_distance < 5 then
 		return false
 	end
@@ -664,13 +664,13 @@ end
 	Create options
 --]]
 EnemyHealthBars.create_options = function()
-	Mods.option_menu:add_group("hud_group", "HUD Related Mods")
+	Mods.option_menu:add_group("hud_group", "HUD Improvements")
 
 	Mods.option_menu:add_item("hud_group", me.SETTINGS.SUB_GROUP, true)
-	
+
 	Mods.option_menu:add_item("hud_group", me.SETTINGS.ACTIVE)
 	Mods.option_menu:add_item("hud_group", me.SETTINGS.POSITION)
-	
+
 	Mods.option_menu:add_item("hud_group", me.SETTINGS.SLAVE_RAT)
 	Mods.option_menu:add_item("hud_group", me.SETTINGS.CLAN_RAT)
 	Mods.option_menu:add_item("hud_group", me.SETTINGS.STORMVERMIN)
@@ -681,7 +681,7 @@ EnemyHealthBars.create_options = function()
 	Mods.option_menu:add_item("hud_group", me.SETTINGS.SACK_RAT)
 	Mods.option_menu:add_item("hud_group", me.SETTINGS.OGRE)
 	Mods.option_menu:add_item("hud_group", me.SETTINGS.CHAMPION)
-	
+
 	Mods.option_menu:add_item("hud_group", me.SETTINGS.HK_TOGGLE)
 	Mods.option_menu:add_item("hud_group", me.SETTINGS.HK_TOGGLE_B)
 end
@@ -757,27 +757,27 @@ EnemyHealthBars.ui = {
 EnemyHealthBars.create_extra_health_bars = function(total)
 	local script = package.loaded["scripts/ui/views/tutorial_ui_definitions"]
 	local scenegraph = nil
-	
+
 	-- 1.4.3 and beta check
 	if script.floating_icons_scene_graph then
 		scenegraph = script.floating_icons_scene_graph
 	else
 		scenegraph = script.scenegraph
 	end
-	
+
 	script.health_bar_definitions = {}
-	
-	
+
+
 	for x = 1, total do
 		local name = "health_bar_" .. tostring(x)
-		
+
 		-- definitions
 		me.ui.item_definitions.scenegraph_id = name
 		me.ui.item_definitions.style.texture_bg.scenegraph_id = name
 		me.ui.item_definitions.style.texture_fg.scenegraph_id = name
-		
+
 		script.health_bar_definitions[x] = table.clone(me.ui.item_definitions)
-		
+
 		scenegraph[name] = table.clone(me.ui.item_scene_graph)
 	end
 

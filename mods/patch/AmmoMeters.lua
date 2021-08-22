@@ -550,7 +550,7 @@ end)
 	Add options for this module to the Options UI.
 --]]
 local function create_options()
-	Mods.option_menu:add_group("hud_group", "HUD Related Mods")
+	Mods.option_menu:add_group("hud_group", "HUD Improvements")
 
 	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.SUB_GROUP, true)
 	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.TEAM_AMMO_METERS)

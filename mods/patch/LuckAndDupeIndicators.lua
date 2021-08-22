@@ -268,7 +268,7 @@ Mods.hook.set(mod_name, "OutlineSystem.update", function(func, self, ...)
 end)
 
 mod.create_options = function()
-	Mods.option_menu:add_group("hud_group", "HUD Related Mods")
+	Mods.option_menu:add_group("hud_group", "HUD Improvements")
 
 	Mods.option_menu:add_item("hud_group", mod.SETTINGS.SUB_GROUP, true)
 	Mods.option_menu:add_item("hud_group", mod.SETTINGS.ENABLED_LUCK)
