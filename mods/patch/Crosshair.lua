@@ -24,12 +24,12 @@ Crosshair = {
 					mode = "show",
 					options = {
 						"cb_crosshair_color",
-                        "cb_crosshair_color_main_red",
-                        "cb_crosshair_color_main_green",
-                        "cb_crosshair_color_main_blue",
+						"cb_crosshair_color_main_red",
+						"cb_crosshair_color_main_green",
+						"cb_crosshair_color_main_blue",
 						"cb_crosshair_enlarge",
 						"cb_crosshair_dot",
-                        "cb_crosshair_no_melee_dot",
+						"cb_crosshair_no_melee_dot",
 						"cb_crosshair_headshot_marker"
 					},
 				},
@@ -38,76 +38,76 @@ Crosshair = {
 					mode = "hide",
 					options = {
 						"cb_crosshair_color",
-                        "cb_crosshair_color_main_red",
-                        "cb_crosshair_color_main_green",
-                        "cb_crosshair_color_main_blue",
+						"cb_crosshair_color_main_red",
+						"cb_crosshair_color_main_green",
+						"cb_crosshair_color_main_blue",
 						"cb_crosshair_enlarge",
 						"cb_crosshair_dot",
-                        "cb_crosshair_no_melee_dot",
+						"cb_crosshair_no_melee_dot",
 						"cb_crosshair_headshot_marker"
 					},
 				},
 			},
 		},
-        COLOR_MAIN_RED = {
-		["save"] = "cb_crosshair_color_main_red",
-		["widget_type"] = "slider",
-		["text"] = "Crosshair Red Value",
-		["tooltip"] =  "Crosshair Red Value\n" ..
+		COLOR_MAIN_RED = {
+			["save"] = "cb_crosshair_color_main_red",
+			["widget_type"] = "slider",
+			["text"] = "Crosshair Red Value",
+			["tooltip"] = "Crosshair Red Value\n" ..
 				"Changes the red color value of your crosshair.",
-		["range"] = {0, 255},
-		["default"] = 255,
-	    },
-        COLOR_MAIN_GREEN = {
-		["save"] = "cb_crosshair_color_main_green",
-		["widget_type"] = "slider",
-		["text"] = "Crosshair Green Value",
-		["tooltip"] =  "Crosshair Green Value\n" ..
+			["range"] = {0, 255},
+			["default"] = 255,
+		},
+		COLOR_MAIN_GREEN = {
+			["save"] = "cb_crosshair_color_main_green",
+			["widget_type"] = "slider",
+			["text"] = "Crosshair Green Value",
+			["tooltip"] = "Crosshair Green Value\n" ..
 				"Changes the green color value of your crosshair.",
-		["range"] = {0, 255},
-		["default"] = 255,
-	    },
-        COLOR_MAIN_BLUE = {
-		["save"] = "cb_crosshair_color_main_blue",
-		["widget_type"] = "slider",
-		["text"] = "Crosshair Blue Value",
-		["tooltip"] =  "Crosshair Blue Value\n" ..
+			["range"] = {0, 255},
+			["default"] = 255,
+		},
+		COLOR_MAIN_BLUE = {
+			["save"] = "cb_crosshair_color_main_blue",
+			["widget_type"] = "slider",
+			["text"] = "Crosshair Blue Value",
+			["tooltip"] = "Crosshair Blue Value\n" ..
 				"Changes the blue color value of your crosshair.",
-		["range"] = {0, 255},
-		["default"] = 255,
-	    },
-        COLOR_HS_RED = {
-		["save"] = "cb_crosshair_color_hs_red",
-		["widget_type"] = "slider",
-		["text"] = "Headshot Marker Red Value",
-		["tooltip"] =  "Headshot Marker Red Value\n" ..
+			["range"] = {0, 255},
+			["default"] = 255,
+		},
+		COLOR_HS_RED = {
+			["save"] = "cb_crosshair_color_hs_red",
+			["widget_type"] = "slider",
+			["text"] = "Headshot Marker Red Value",
+			["tooltip"] = "Headshot Marker Red Value\n" ..
 				"Changes the red color value of your crosshair headshot marker.",
-		["range"] = {0, 255},
-		["default"] = 255,
-	    },
-        COLOR_HS_GREEN = {
-		["save"] = "cb_crosshair_color_hs_green",
-		["widget_type"] = "slider",
-		["text"] = "Headshot Marker Green Value",
-		["tooltip"] =  "Headshot Marker Green Value\n" ..
+			["range"] = {0, 255},
+			["default"] = 255,
+		},
+		COLOR_HS_GREEN = {
+			["save"] = "cb_crosshair_color_hs_green",
+			["widget_type"] = "slider",
+			["text"] = "Headshot Marker Green Value",
+			["tooltip"] = "Headshot Marker Green Value\n" ..
 				"Changes the green color value of your crosshair headshot marker.",
-		["range"] = {0, 255},
-		["default"] = 255,
-	    },
-        COLOR_HS_BLUE = {
-		["save"] = "cb_crosshair_color_hs_blue",
-		["widget_type"] = "slider",
-		["text"] = "Headshot Marker Blue Value",
-		["tooltip"] =  "Headshot Marker Blue Value\n" ..
+			["range"] = {0, 255},
+			["default"] = 255,
+		},
+		COLOR_HS_BLUE = {
+			["save"] = "cb_crosshair_color_hs_blue",
+			["widget_type"] = "slider",
+			["text"] = "Headshot Marker Blue Value",
+			["tooltip"] = "Headshot Marker Blue Value\n" ..
 				"Changes the blue color value of your crosshair headshot marker.",
-		["range"] = {0, 255},
-		["default"] = 255,
-	    },
+			["range"] = {0, 255},
+			["default"] = 255,
+		},
 		ENLARGE = {
 			["save"] = "cb_crosshair_enlarge",
 			["widget_type"] = "stepper",
 			["text"] = "Enlarge",
-			["tooltip"] =  "Enlarge\n" ..
+			["tooltip"] = "Enlarge\n" ..
 				"Increases the size of your crosshair.",
 			["value_type"] = "number",
 			["options"] = {
@@ -122,7 +122,7 @@ Crosshair = {
 			["widget_type"] = "stepper",
 			text = "Dot Only",
 			tooltip = "Dot Only\n" ..
-					"Forces the crosshair to remain as only a dot, even with ranged weapons.",
+				"Forces the crosshair to remain as only a dot, even with ranged weapons.",
 			["value_type"] = "boolean",
 			["options"] = {
 				{text = "Off", value = false},
@@ -135,7 +135,7 @@ Crosshair = {
 			["widget_type"] = "stepper",
 			["text"] = "Headshot indicator",
 			["tooltip"] = "Headshot marker\n" ..
-					"Adds a marker to the crosshair on headshots.",
+				"Adds a marker to the crosshair on headshots.",
 			["value_type"] = "boolean",
 			["options"] = {
 				{text = "Off", value = false},
@@ -148,8 +148,8 @@ Crosshair = {
 					mode = "hide",
 					options = {
 						"cb_crosshair_color_hs_red",
-                        "cb_crosshair_color_hs_green",
-                        "cb_crosshair_color_hs_blue",
+						"cb_crosshair_color_hs_green",
+						"cb_crosshair_color_hs_blue",
 					}
 				},
 				{
@@ -157,18 +157,18 @@ Crosshair = {
 					mode = "show",
 					options = {
 						"cb_crosshair_color_hs_red",
-                        "cb_crosshair_color_hs_green",
-                        "cb_crosshair_color_hs_blue",
+						"cb_crosshair_color_hs_green",
+						"cb_crosshair_color_hs_blue",
 					}
 				},
 			},
 		},
-        NO_MELEE_DOT = {
+		NO_MELEE_DOT = {
 			["save"] = "cb_crosshair_no_melee_dot",
 			["widget_type"] = "stepper",
 			text = "No Melee Dot",
 			tooltip = "No Melee Dot\n" ..
-					"Disables the dot when you have your melee equipped.",
+				"Disables the dot when you have your melee equipped.",
 			["value_type"] = "boolean",
 			["options"] = {
 				{text = "Off", value = false},
@@ -205,16 +205,16 @@ Crosshair.create_options = function()
 	Mods.option_menu:add_group("hud_group", "HUD Improvements")
 
 	Mods.option_menu:add_item("hud_group", mod.SETTINGS.SUB_GROUP, true)
-    Mods.option_menu:add_item("hud_group", mod.SETTINGS.COLOR_MAIN_RED)
-    Mods.option_menu:add_item("hud_group", mod.SETTINGS.COLOR_MAIN_GREEN)
-    Mods.option_menu:add_item("hud_group", mod.SETTINGS.COLOR_MAIN_BLUE)
+	Mods.option_menu:add_item("hud_group", mod.SETTINGS.COLOR_MAIN_RED)
+	Mods.option_menu:add_item("hud_group", mod.SETTINGS.COLOR_MAIN_GREEN)
+	Mods.option_menu:add_item("hud_group", mod.SETTINGS.COLOR_MAIN_BLUE)
 	Mods.option_menu:add_item("hud_group", mod.SETTINGS.ENLARGE)
 	Mods.option_menu:add_item("hud_group", mod.SETTINGS.DOT_ONLY)
-    Mods.option_menu:add_item("hud_group", mod.SETTINGS.NO_MELEE_DOT)
+	Mods.option_menu:add_item("hud_group", mod.SETTINGS.NO_MELEE_DOT)
 	Mods.option_menu:add_item("hud_group", mod.SETTINGS.HEADSHOT_MARKER)
-    Mods.option_menu:add_item("hud_group", mod.SETTINGS.COLOR_HS_RED)
-    Mods.option_menu:add_item("hud_group", mod.SETTINGS.COLOR_HS_GREEN)
-    Mods.option_menu:add_item("hud_group", mod.SETTINGS.COLOR_HS_BLUE)
+	Mods.option_menu:add_item("hud_group", mod.SETTINGS.COLOR_HS_RED)
+	Mods.option_menu:add_item("hud_group", mod.SETTINGS.COLOR_HS_GREEN)
+	Mods.option_menu:add_item("hud_group", mod.SETTINGS.COLOR_HS_BLUE)
 end
 
 local widget_definitions = {
@@ -387,23 +387,23 @@ Mods.hook.set(mod_name, "CrosshairUI.update_hit_markers", function (func, self, 
 end)
 
 local change_crosshair_color = function(crosshair_ui)
-    local main_color = {255, get(mod.SETTINGS.COLOR_MAIN_RED), get(mod.SETTINGS.COLOR_MAIN_GREEN), get(mod.SETTINGS.COLOR_MAIN_BLUE)}
+	local main_color = {255, get(mod.SETTINGS.COLOR_MAIN_RED), get(mod.SETTINGS.COLOR_MAIN_GREEN), get(mod.SETTINGS.COLOR_MAIN_BLUE)}
 
-    crosshair_ui.crosshair_dot.style.color = table.clone(main_color)
-    crosshair_ui.crosshair_up.style.color = table.clone(main_color)
+	crosshair_ui.crosshair_dot.style.color = table.clone(main_color)
+	crosshair_ui.crosshair_up.style.color = table.clone(main_color)
 	crosshair_ui.crosshair_down.style.color = table.clone(main_color)
 	crosshair_ui.crosshair_left.style.color = table.clone(main_color)
 	crosshair_ui.crosshair_right.style.color = table.clone(main_color)
 
 	if not crosshair_ui.hit_marker_animations[1] then
 		for i,v in ipairs(crosshair_ui.hit_markers) do
-		  v.style.rotating_texture.color = table.clone(main_color)
-		  v.style.rotating_texture.color[1] = 0
+			v.style.rotating_texture.color = table.clone(main_color)
+			v.style.rotating_texture.color[1] = 0
 		end
 	end
 
 	if Crosshair.headshot_widgets[1] and not Crosshair.headshot_animations[1] then
-        local hs_color = {255, get(mod.SETTINGS.COLOR_HS_RED), get(mod.SETTINGS.COLOR_HS_GREEN), get(mod.SETTINGS.COLOR_HS_BLUE)}
+		local hs_color = {255, get(mod.SETTINGS.COLOR_HS_RED), get(mod.SETTINGS.COLOR_HS_GREEN), get(mod.SETTINGS.COLOR_HS_BLUE)}
 		for i = 1, 4 do
 			Crosshair.headshot_widgets[i].style.rotating_texture.color = table.clone(hs_color)
 			Crosshair.headshot_widgets[i].style.rotating_texture.color[1] = 0
@@ -425,7 +425,7 @@ local change_crosshair_scale = function(crosshair_ui)
 
 	for k,v in pairs(Crosshair.default_sizes) do
 		for i,v in ipairs(Crosshair.default_sizes[k]) do
-		  crosshair_ui.ui_scenegraph[k].size[i] = v * crosshair_lines_scale
+			crosshair_ui.ui_scenegraph[k].size[i] = v * crosshair_lines_scale
 		end
 	end
 
@@ -439,11 +439,11 @@ Mods.hook.set(mod_name, "CrosshairUI.draw_dot_style_crosshair", function(func, s
 	change_crosshair_scale(self)
 	change_crosshair_color(self)
 
-    if get(mod.SETTINGS.NO_MELEE_DOT) then
-        self.crosshair_dot.style.color[1] = 0;
+	if get(mod.SETTINGS.NO_MELEE_DOT) then
+		self.crosshair_dot.style.color[1] = 0;
 	end
 
-    return func(self, ...)
+	return func(self, ...)
 end)
 
 Mods.hook.set(mod_name, "CrosshairUI.draw_default_style_crosshair", function(func, self, ...)
@@ -451,14 +451,14 @@ Mods.hook.set(mod_name, "CrosshairUI.draw_default_style_crosshair", function(fun
 	change_crosshair_scale(self)
 	change_crosshair_color(self)
 
-    if get(mod.SETTINGS.DOT_ONLY) then
-        crosshair_ui.crosshair_up.style.color[1] = 0
-        crosshair_ui.crosshair_down.style.color[1] = 0
-        crosshair_ui.crosshair_left.style.color[1] = 0
-        crosshair_ui.crosshair_right.style.color[1] = 0
+	if get(mod.SETTINGS.DOT_ONLY) then
+		crosshair_ui.crosshair_up.style.color[1] = 0
+		crosshair_ui.crosshair_down.style.color[1] = 0
+		crosshair_ui.crosshair_left.style.color[1] = 0
+		crosshair_ui.crosshair_right.style.color[1] = 0
 	end
 
-    return func(self, ...)
+	return func(self, ...)
 end)
 
 Mods.hook.set(mod_name, "DamageSystem.rpc_add_damage", function (func, self, sender, victim_unit_go_id, attacker_unit_go_id, attacker_is_level_unit, damage_amount, hit_zone_id, damage_type_id, damage_direction, damage_source_id, hit_ragdoll_actor_id)
