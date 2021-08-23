@@ -1,14 +1,45 @@
 --[[
-  Compass
-	Author: woobilicious (ported from VMF by uladz)
-	Version: 1.0.1
-	Link: https://www.nexusmods.com/vermintide/mods/52
+  Compass (ported from VMF)
+	Author: woobilicious
+  Updated: uladz
+	Version: 1.0.2
+	Original link: https://www.nexusmods.com/vermintide/mods/52
 
 	Simple Compass HUD addition.
+
+  Version history:
+  1.0.1 - ported from VMF to QoL
+  1.0.2 - added ON/OFF switch in mod option under "HUD Improvements" group.
 --]]
 
 local mod_name = "Compass"
 local oi = OptionsInjector
+
+local get = Application.user_setting
+local set = Application.set_user_setting
+local save = Application.save_user_settings
+
+local MOD_SETTINGS = {
+	SHOW = {
+		["save"] = "cb_compass_show",
+		["widget_type"] = "stepper",
+		["text"] = "Show Compass",
+		["tooltip"] = "Show Compass\n" ..
+			"Shows simple compass in HUD.",
+		["value_type"] = "boolean",
+		["options"] = {
+			{text = "Off", value = false},
+			{text = "On", value = true},
+		},
+		["default"] = 1, -- Default first option is enabled. In this case Off
+  },
+}
+
+local create_options = function()
+	Mods.option_menu:add_group("hud_group", "HUD Improvements")
+
+	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.SHOW, true)
+end
 
 local scenegraph_def = {
   root = {
@@ -119,26 +150,29 @@ local rot_to_cardinal = function(d)
 end
 
 local draw_hook = function(func, self, dt, t, my_player)
-  if not Compass.ui_widget then
-    init_ui_widget()
+  if get(MOD_SETTINGS.SHOW.save) then
+
+    if not Compass.ui_widget then
+      init_ui_widget()
+    end
+
+    local rot = 999999
+    if pcall(function () rot = get_rotation() end) then
+
+      local widget = Compass.ui_widget
+      local renderer = Compass.ui_renderer
+      local scenegraph = Compass.ui_scenegraph
+
+      widget.content.compass_text = rot_to_cardinal(rot)
+
+      UIRenderer.begin_pass(renderer, scenegraph, fake_input_service, dt)
+      UIRenderer.draw_widget(renderer, widget)
+      UIRenderer.end_pass(renderer)
+    end
   end
-
-  local rot = 999999
-  if not pcall(function () rot = get_rotation() end) then
-    return func(self, dt, t, my_player)
-  end
-
-  local widget = Compass.ui_widget
-  local renderer = Compass.ui_renderer
-  local scenegraph = Compass.ui_scenegraph
-
-  widget.content.compass_text = rot_to_cardinal(rot)
-
-  UIRenderer.begin_pass(renderer, scenegraph, fake_input_service, dt)
-  UIRenderer.draw_widget(renderer, widget)
-  UIRenderer.end_pass(renderer)
 
   return func(self, dt, t, my_player)
 end
 
 Mods.hook.set(mod_name, "IngameHud.update", draw_hook)
+create_options()
