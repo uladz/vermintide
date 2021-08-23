@@ -1,11 +1,16 @@
 --[[
-	Player Name
-	Author: IamLupo (ported from VMF by uladz)
-	Version: 1.2.0
-	Link: https://www.nexusmods.com/vermintide/mods/26
+	Player Name (ported from VMF)
+	Author: IamLupo
+	Updated: uladz
+	Version: 1.2.1
+	Original link: https://www.nexusmods.com/vermintide/mods/26
 
 	Displays player names above their character.
 	Option for health color coding.
+
+  Version history:
+	1.2.0 - ported from VMF to QoL
+	1.2.1 - added option to change the font size.
 --]]
 
 local mod_name = "PlayerName"
@@ -24,7 +29,7 @@ mod.widget_settings = {
 		["widget_type"] = "stepper",
 		["text"] = "Show Player Name",
 		["tooltip"] = "Show Player Name\n" ..
-			"Shows the player name above player in the 3D world.",
+			"Shows the player name floating above player character.",
 		["value_type"] = "boolean",
 		["options"] = {
 			{text = "Off", value = false},
@@ -36,6 +41,7 @@ mod.widget_settings = {
 				false,
 				mode = "hide",
 				options = {
+					"cb_player_name_font_size",
 					"cb_player_name_color",
 					"cb_player_name_alpha",
 				}
@@ -44,12 +50,24 @@ mod.widget_settings = {
 				true,
 				mode = "show",
 				options = {
+					"cb_player_name_font_size",
 					"cb_player_name_color",
 					"cb_player_name_alpha",
 				}
 			},
 		},
 	},
+-- edit --
+	FONT_SIZE = {
+    ["save"] = "cb_player_name_font_size",
+    ["widget_type"] = "slider",
+    ["text"] = "Font Size",
+    ["tooltip"] = "Font Size\n" ..
+      "Changes font size of the floating player name.",
+    ["range"] = {1, 200},
+    ["default"] = 100,
+  },
+-- edit --
 	COLOR = {
 		["save"] = "cb_player_name_color",
 		["widget_type"] = "dropdown",
@@ -77,7 +95,7 @@ mod.widget_settings = {
 		["widget_type"] = "slider",
 		["text"] = "Transparanty",
 		["tooltip"] = "Transparanty\n" ..
-			"Set the Transparanty of the name in procentages.",
+			"Changes transparanty of the floating player name in procentages.",
 		["range"] = {1, 100},
 		["default"] = 70,
 	},
@@ -92,6 +110,7 @@ mod.create_options = function()
 	Mods.option_menu:add_group("hud_group", "HUD Improvements")
 
 	Mods.option_menu:add_item("hud_group", mod.widget_settings.ACTIVATE, true)
+	Mods.option_menu:add_item("hud_group", mod.widget_settings.FONT_SIZE)
 	Mods.option_menu:add_item("hud_group", mod.widget_settings.COLOR)
 	Mods.option_menu:add_item("hud_group", mod.widget_settings.ALPHA)
 end
@@ -132,8 +151,8 @@ Mods.hook.set(mod_name, "MatchmakingManager.update", function(func, ...)
 		pcall(function()
 			local human_players = Managers.player:human_players()
 
-			local font_size = 0.2
-			local font = "gw_arial_32"
+			local font_size = mod.get(mod.widget_settings.FONT_SIZE.save) / 1000
+			local font = "gw_body_32"
 			local font_material = "materials/fonts/" .. font
 
 			for _, player in pairs(human_players) do
