@@ -24,7 +24,7 @@ local MOD_SETTINGS = {
 	WEAPONSWITCHING = {
 		["save"] = "cb_weapon_switching_enabled",
 		["widget_type"] = "stepper",
-		["text"] = "Enabled",
+		["text"] = "Weapon Switching Fix",
 		["tooltip"] = "Weapon Switching Fix\n" ..
 			"Fixes cases of weapon switch input not being queued up properly, " ..
 			"and weapons refusing to switch when holding the right mouse button.",
@@ -450,9 +450,9 @@ Mods.hook.set(mod_name, "CharacterStateHelper._get_chain_action_data", function(
 end)
 
 local function create_options()
-	Mods.option_menu:add_group("weapon_switching", "Weapon Switching Fix")
+	Mods.option_menu:add_group("bugfixes", "Bug Fixes")
 
-	Mods.option_menu:add_item("weapon_switching", MOD_SETTINGS.WEAPONSWITCHING, true)
+	Mods.option_menu:add_item("bugfixes", MOD_SETTINGS.WEAPONSWITCHING, true)
 end
 
 local status, err = pcall(create_options)
