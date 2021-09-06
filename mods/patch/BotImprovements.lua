@@ -1,6 +1,9 @@
 local mod_name = "BotImprovements"
 
 --[[
+Version 20210829 - Release 3 update 2
+* Added a workaround to the code to relieve reported memory leak issue. This "fix" should remove most of the additional leak caused by this bot file. It doesn't help with the lea that is present in the base game by default.
+
 Version 20210621 - Release 3 update 1
 * "Healshare Requires Wounded Teammate" setting has been removed and its functionality has been added as one option to new setting "Heal Only If Wounded".
 * Many healing related options have now bee grouped under subgroup "Healing Related Options". The available options there have also been expanded a bit.
@@ -1446,19 +1449,60 @@ local new_frame_checker = function()
 	return ret
 end
 
+-- shorthand to check is a unit is alive based on its health extension
+local is_unit_alive = function(unit)
+	-- this checks only if the unit still exists and has a body / corpse
+	if not unit or not Unit.alive(unit) then
+		return false
+	end
+	
+	-- but a units should be considered dead if it has 0 health even if the corpse is still lying around..
+	local health_extension	= ScriptUnit.has_extension(unit, "health_system")
+	local is_alive			= (health_extension and health_extension:is_alive()) or false
+	
+	return is_alive
+end
+
 -- check if the given unit is inside gas / fire patch / triggered barrel effect area
+local is_unit_in_aoe_explosion_threat_area_data = {}
 local is_unit_in_aoe_explosion_threat_area = function(unit)
+	if not unit then
+		return false
+	end
+	
+	local t = os.clock()
+	if not is_unit_in_aoe_explosion_threat_area_data[unit] then
+		is_unit_in_aoe_explosion_threat_area_data[unit] =
+		{
+			expires_at = 0,
+			ret = false,
+		}
+	end
+	
 	local ret = false
-	if unit then
+	if t > is_unit_in_aoe_explosion_threat_area_data[unit].expires_at then
 		local unit_pos		= POSITION_LOOKUP[unit] or Unit.local_position(unit, 0) or false
 		local nav_world		= Managers.state.entity:system("ai_system"):nav_world()
 		local group_system	= Managers.state.entity:system("ai_bot_group_system")
 		--
-		local _			= nil
 		if unit_pos and nav_world and group_system then
-			ret, _		= group_system:_selected_unit_is_in_disallowed_nav_tag_volume(nav_world, unit_pos)
+			local in_threat_area, _		= group_system:_selected_unit_is_in_disallowed_nav_tag_volume(nav_world, unit_pos)
+			ret = in_threat_area
+		end
+		
+		is_unit_in_aoe_explosion_threat_area_data[unit].ret = ret
+		is_unit_in_aoe_explosion_threat_area_data[unit].expires_at = t + 0.2
+	else
+		ret = is_unit_in_aoe_explosion_threat_area_data[unit].ret
+	end
+	
+	-- clean garbage data out of the data table
+	for unit,_ in pairs(is_unit_in_aoe_explosion_threat_area_data) do
+		if not is_unit_alive(unit) then
+			is_unit_in_aoe_explosion_threat_area_data[unit] = nil
 		end
 	end
+	
 	return ret
 end
 
@@ -1814,20 +1858,6 @@ local utils =
 		-- return nil
 	-- end,
 }
-
--- shorthand to check is a unit is alive based on its health extension
-local is_unit_alive = function(unit)
-	-- this checks only if the unit still exists and has a body / corpse
-	if not unit or not Unit.alive(unit) then
-		return false
-	end
-	
-	-- but a units should be considered dead if it has 0 health even if the corpse is still lying around..
-	local health_extension	= ScriptUnit.has_extension(unit, "health_system")
-	local is_alive			= (health_extension and health_extension:is_alive()) or false
-	
-	return is_alive
-end
 
 -- create new area check element for box type area
 local new_area_check_box = function(point1, point2)
