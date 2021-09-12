@@ -1,8 +1,7 @@
 --[[
-  Compass (ported from VMF)
-	Author: woobilicious
-  Updated: uladz
-	Version: 1.0.2
+  Compass
+	Author: woobilicious, uladz
+	Version: 1.0.3
 	Original link: https://www.nexusmods.com/vermintide/mods/52
 
 	Simple Compass HUD addition.
@@ -10,14 +9,11 @@
   Version history:
   1.0.1 - ported from VMF to QoL
   1.0.2 - added ON/OFF switch in mod option under "HUD Improvements" group.
+	1.0.3 - added options to change vertical position and font size of the compass.
 --]]
 
 local mod_name = "Compass"
 local oi = OptionsInjector
-
-local get = Application.user_setting
-local set = Application.set_user_setting
-local save = Application.save_user_settings
 
 local MOD_SETTINGS = {
 	SHOW = {
@@ -32,13 +28,54 @@ local MOD_SETTINGS = {
 			{text = "On", value = true},
 		},
 		["default"] = 1, -- Default first option is enabled. In this case Off
+		["hide_options"] = {
+			{
+				false,
+				mode = "hide",
+				options = {
+					"cb_compass_position",
+					"cb_compass_font_size",
+				}
+			},
+			{
+				true,
+				mode = "show",
+				options = {
+					"cb_compass_position",
+					"cb_compass_font_size",
+				}
+			},
+		},
+  },
+	POSITION = {
+    ["save"] = "cb_compass_position",
+    ["widget_type"] = "slider",
+    ["text"] = "Vertical Position",
+    ["tooltip"] = "Vertical Position\n" ..
+      "Changes compass vertical position from the top of the screen.",
+    ["range"] = {0, 200},
+    ["default"] = 60,
+  },
+	FONT_SIZE = {
+    ["save"] = "cb_compass_font_size",
+    ["widget_type"] = "slider",
+    ["text"] = "Font Size",
+    ["tooltip"] = "Font Size\n" ..
+      "Changes font size of the compass.",
+    ["range"] = {1, 100},
+    ["default"] = 32,
   },
 }
 
 local create_options = function()
 	Mods.option_menu:add_group("hud_group", "HUD Improvements")
-
 	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.SHOW, true)
+	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.POSITION)
+	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.FONT_SIZE)
+end
+
+local get = function(data)
+	return Application.user_setting(data.save)
 end
 
 local scenegraph_def = {
@@ -74,11 +111,11 @@ local compass_ui_def = {
     compass_text = {
       font_type = "hell_shark",
       font_size = 32,
-      vertical_alignment = "center",
+      vertical_alignment = "top",
       horizontal_alignment = "center",
       offset = {
         0,
-        650,
+        -60,
         0
       }
     }
@@ -107,8 +144,8 @@ Compass = {
 
 local init_ui_widget = function()
   if Compass.ui_widget then
-    return
-  end
+		return
+	end
   local world = Managers.world:world("top_ingame_view")
   Compass.ui_renderer = UIRenderer.create(world, "material", "materials/fonts/gw_fonts")
   Compass.ui_scenegraph = UISceneGraph.init_scenegraph(scenegraph_def)
@@ -150,21 +187,20 @@ local rot_to_cardinal = function(d)
 end
 
 local draw_hook = function(func, self, dt, t, my_player)
-  if get(MOD_SETTINGS.SHOW.save) then
-
+  if get(MOD_SETTINGS.SHOW) then
     if not Compass.ui_widget then
       init_ui_widget()
     end
 
     local rot = 999999
     if pcall(function () rot = get_rotation() end) then
-
       local widget = Compass.ui_widget
       local renderer = Compass.ui_renderer
       local scenegraph = Compass.ui_scenegraph
 
       widget.content.compass_text = rot_to_cardinal(rot)
-
+			widget.style.compass_text.offset[2] = -get(MOD_SETTINGS.POSITION)
+			widget.style.compass_text.font_size = get(MOD_SETTINGS.FONT_SIZE)
       UIRenderer.begin_pass(renderer, scenegraph, fake_input_service, dt)
       UIRenderer.draw_widget(renderer, widget)
       UIRenderer.end_pass(renderer)
