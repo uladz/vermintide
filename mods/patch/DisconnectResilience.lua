@@ -23,7 +23,7 @@ Mods.hook.set(mod_name, "StateIngame.connected_to_network", function (func, self
 	if result == false and not network_disconnect_token then
 		network_disconnect_token = true
 		script_data.disable_gamemode_end = true
-		EchoConsole("DisconnectionResilience : Lost connection to the network.")
+		EchoConsole("<Lost connection to the network>")
 		if not Managers.player.is_server then
 			Mods.network.send_rpc_server(RPC_DISCO_RESIL_DISCONNECTED, true)
 		end
@@ -40,7 +40,7 @@ Mods.hook.set(mod_name, "StateIngame.connected_to_network", function (func, self
 				Mods.network.send_rpc_server(RPC_DISCO_RESIL_DISCONNECTED, false)
 			end
 		end
-		EchoConsole("DisconnectionResilience : Regained connection to the network.")
+		EchoConsole("<Regained connection to the network>")
 	end
 	return true
 end)
@@ -61,8 +61,8 @@ Mods.hook.set(mod_name, "ProgressionUnlocks.is_unlocked", function (func, unlock
 	if (network_disconnect_token or backend_disconnect_token) and (unlock_name == "forge" or unlock_name == "altar" or unlock_name == "quests") then
 		return
 	end
-	
-	return func(unlock_name, level)		
+
+	return func(unlock_name, level)
 end)
 
 Mods.hook.set(mod_name, "InteractionDefinitions.forge_access.client.can_interact", function (func, ...)
@@ -123,7 +123,7 @@ Mods.hook.set(mod_name, "ScriptBackend.update", function (func, ...)
 				Mods.network.send_rpc_server(RPC_DISCO_RESIL_DISCONNECTED, false)
 			end
 		end
-		local status, err = pcall(EchoConsole, "DisconnectionResilience : Regained connection to the backend.")
+		local status, err = pcall(EchoConsole, "<Regained connection to the backend>")
 	end
 
 	if state == "connection_connecting" then
@@ -132,7 +132,7 @@ Mods.hook.set(mod_name, "ScriptBackend.update", function (func, ...)
 
 	if state == "connection_initialized" then
 		if not backend_disconnect_token then
-			local status, err = pcall(EchoConsole, "DisconnectionResilience : Lost connection to the backend.")
+			local status, err = pcall(EchoConsole, "<Lost connection to the backend>")
 			backend_disconnect_token = true
 			script_data.disable_gamemode_end = true
 
@@ -141,7 +141,7 @@ Mods.hook.set(mod_name, "ScriptBackend.update", function (func, ...)
 			end
 		end
 		if not backend_reconnect_token and not network_disconnect_token then
-			local status, err = pcall(EchoConsole, "DisconnectionResilience : Attempting reconnection to the backend.")
+			local status, err = pcall(EchoConsole, "<Attempting reconnection to the backend>")
 			if err == nil then
 				backend_reconnect_token = true
 				Managers.backend = BackendManager:new()
@@ -156,7 +156,7 @@ Mods.hook.set(mod_name, "ScriptBackend.update", function (func, ...)
 		if Managers.player:players_at_peer(peer) == nil then
 			RESILIENCE_DISCONNECTED_PEERS[peer] = nil
 			bool = false
-		end		
+		end
 
 		if bool then
 			peer_is_disconnected = true
@@ -247,12 +247,12 @@ Mods.network.register(RPC_DISCO_RESIL_DISCONNECTED, function(sender_id, peer_is_
 	local player_name = player._cached_name
 
 	if peer_is_disconnected and not RESILIENCE_DISCONNECTED_PEERS[sender_id] then
-		EchoConsole("DisconnectionResilience : Player '" .. player_name .. "' has been disconnected from the game network.")
+		EchoConsole("<Player '" .. player_name .. "' has been disconnected from the game network>")
 	elseif not peer_is_disconnected and RESILIENCE_DISCONNECTED_PEERS[sender_id] then
-		EchoConsole("DisconnectionResilience : Player '" .. player_name .. "' has been reconnected to the game network.")
+		EchoConsole("<Player '" .. player_name .. "' has been reconnected to the game network>")
 	end
 
-	RESILIENCE_DISCONNECTED_PEERS[sender_id] = peer_is_disconnected	
+	RESILIENCE_DISCONNECTED_PEERS[sender_id] = peer_is_disconnected
 
 	for peer_id, is_dc in pairs(RESILIENCE_DISCONNECTED_PEERS) do
 		if Managers.player:players_at_peer(peer_id) == nil then
