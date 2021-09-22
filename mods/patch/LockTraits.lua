@@ -2,7 +2,7 @@
 	Name: Lock Traits (ported from VMF)
 	Author: UnShame
 	Updated by: uladz
-	Version: 1.0.1
+	Version: 1.1.0
 
 	Adds a button to the Shrine of Solace's Offer page to lock selected traits before rerolling.
 	This way you are guaranteed to get an item with desired traits.
@@ -14,11 +14,39 @@
 		rerolling.
 	1.0.1 Fixed a likely crash when going back to inn.
 		Instead of modifiying existing animations, a copy is created and modified.
+	1.1.0 Added option to turn on or off this cheat.
+		Located in "Gameplay Cheats" mod options group.
 ]]--
 
 local mod_name = "LockTraits"
 LockTraits = {}
 local mod = LockTraits
+
+mod.widget_settings = {
+	ENABLED = {
+		["save"] = "cb_lock_traits_enabled",
+		["widget_type"] = "stepper",
+		["text"] = "Enable Locking of Traits when Rerolling",
+		["tooltip"] = "Enable Locking of Traits when Rerolling\n" ..
+			"Adds a button to the Shrine of Solace's Offer page to lock selected traits before rerolling.",
+		["value_type"] = "boolean",
+		["options"] = {
+			{text = "Off", value = false},
+			{text = "On", value = true},
+		},
+		["default"] = 1, -- Default first option is enabled. In this case Off
+	},
+}
+
+mod.get = function(data)
+	return Application.user_setting(data.save)
+end
+
+mod.create_options = function()
+	local group = "cheats"
+	Mods.option_menu:add_group(group, "Gameplay Cheats")
+	Mods.option_menu:add_item(group, mod.widget_settings.ENABLED, true)
+end
 
 -- Returns index of object o in table t or nil if t doesn't have o
 mod.table_index_of = function(t, o)
@@ -285,6 +313,9 @@ end
 
 -- Adding trait filters when rerolling
 Mods.hook.set(mod_name, "ForgeLogic.reroll_traits", function (func, self, backend_id, item_is_equipped)
+	if not mod.get(mod.widget_settings.ENABLED) then
+		return func(self, backend_id, item_is_equipped)
+	end
 
 	local item_info = ScriptBackendItem.get_item_from_id(backend_id)
 	local item_data = ItemMasterList[item_info.key]
@@ -350,31 +381,41 @@ end)
 Mods.hook.set(mod_name, "AltarTraitRollUI._set_selected_trait", function (func, self, selected_index)
 	--EchoConsole("_set_selected_trait " .. tostring(selected_index))
 	func(self, selected_index)
-	mod.create_window()
+	if mod.get(mod.widget_settings.ENABLED) then
+		mod.create_window()
+	end
 end)
 
 -- Clear locked traits when a new item is selected
 Mods.hook.set(mod_name, "AltarTraitRollUI.add_item", function (func, self, ...)
 	--EchoConsole("add_item")
-	if not mod.trait_reroll_page then
-		mod.setup_reroll_page()
+	if mod.get(mod.widget_settings.ENABLED) then
+		if not mod.trait_reroll_page then
+			mod.setup_reroll_page()
+		end
+		mod.reset(false)
 	end
-	mod.reset(false)
 	return func(self, ...)
 end)
 
 -- Clear locked traits and destroy window when the wheel is emptied
 Mods.hook.set(mod_name, "AltarTraitRollUI.remove_item", function (func, self, ...)
 	--EchoConsole("remove_item")
-	if not mod.trait_reroll_page then
-		mod.setup_reroll_page()
+	if mod.get(mod.widget_settings.ENABLED) then
+		if not mod.trait_reroll_page then
+			mod.setup_reroll_page()
+		end
+		mod.reset(true)
 	end
-	mod.reset(true)
 	return func(self, ...)
 end)
 
 -- Clear locked traits and destroy window on exit
 Mods.hook.set(mod_name, "AltarView.exit", function (func, self, return_to_game)
+	if not mod.get(mod.widget_settings.ENABLED) then
+		return func(self, return_to_game)
+	end
+
 	if self.menu_locked then
 		if not self.popup_id then
 			local text = Localize("dlc1_1_trait_roll_error_description")
@@ -401,19 +442,29 @@ end)
 -- Rehighlighting locked traits
 Mods.hook.set(mod_name, "AltarTraitRollUI._clear_new_trait_slots", function (func, ...)
 	func(...)
-	mod.highlight_locked_trairs()
+	if mod.get(mod.widget_settings.ENABLED) then
+		mod.highlight_locked_trairs()
+	end
 end)
 Mods.hook.set(mod_name, "AltarTraitRollUI._set_glow_enabled_for_traits", function (func, ...)
 	func(...)
-	mod.highlight_locked_trairs()
+	if mod.get(mod.widget_settings.ENABLED) then
+		mod.highlight_locked_trairs()
+	end
 end)
 Mods.hook.set(mod_name, "AltarTraitRollUI._instant_fade_out_traits_options_glow", function (func, ...)
 	func(...)
-	mod.highlight_locked_trairs()
+	if mod.get(mod.widget_settings.ENABLED) then
+		mod.highlight_locked_trairs()
+	end
 end)
 
 -- Returns increased reroll cost based on locked traits
 Mods.hook.set(mod_name, "AltarTraitRollUI._get_upgrade_cost", function (func, self)
+	if not mod.get(mod.widget_settings.ENABLED) then
+		return func(self)
+	end
+
 	local item_data = self.active_item_data
 
 	if item_data then
@@ -430,6 +481,10 @@ end)
 
 -- Play modified animations instead of standard ones
 Mods.hook.set(mod_name, "AltarTraitRollUI._on_preview_window_1_button_hovered", function (func, self)
+	if not mod.get(mod.widget_settings.ENABLED) then
+		return func(self)
+	end
+
 	local params = {
 		wwise_world = self.wwise_world
 	}
@@ -445,7 +500,12 @@ Mods.hook.set(mod_name, "AltarTraitRollUI._on_preview_window_1_button_hovered", 
 
 	return
 end)
+
 Mods.hook.set(mod_name, "AltarTraitRollUI._on_preview_window_2_button_hovered", function (func, self)
+	if not mod.get(mod.widget_settings.ENABLED) then
+		return func(self)
+	end
+
 	local params = {
 		wwise_world = self.wwise_world
 	}
@@ -461,7 +521,12 @@ Mods.hook.set(mod_name, "AltarTraitRollUI._on_preview_window_2_button_hovered", 
 
 	return
 end)
+
 Mods.hook.set(mod_name, "AltarTraitRollUI._on_preview_window_1_button_hover_exit", function (func, self)
+	if not mod.get(mod.widget_settings.ENABLED) then
+		return func(self)
+	end
+
 	local params = {
 		wwise_world = self.wwise_world
 	}
@@ -482,3 +547,8 @@ end)
 
 -- Try getting reroll page object (works only when the mod is reloaded)
 mod.setup_reroll_page()
+
+local status, err = pcall(mod.create_options)
+if err ~= nil then
+	EchoConsole(err)
+end
