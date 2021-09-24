@@ -1,12 +1,16 @@
 --[[
-ShowItems v1.0.2
-Adds the ability to display icons above items, including items inside chests.
-Go to Mod Settings -> Items -> Show Item Icons to tweak settings to your liking.
+	Name: ShowItems (ported from VMF)
+	Author: unknown
+	Updated by: uladz
+	Version: 1.1.0
+
+	Adds the ability to display icons above items, including items inside chests.
+	Go to Mod Settings -> Items -> Show Item Icons to tweak settings to your liking.
 
 Changelog
-	1.0.2 - Added german language
-	1.0.1 - Fixed grim title in options
-	1.0.0 - Release
+	1.0.0 release
+	1.0.1 fixed grim title in options
+	1.1.0 ported from VMF to QoL, fixed menus, no german lang
 ]]--
 
 mod_name = "ShowItems"
@@ -20,22 +24,33 @@ end
 mod.widget_settings = {
 	SHOW = {
 		["save"] = "cb_show_items_show",
-		["widget_type"] = "checkbox",
+		["widget_type"] = "stepper",
 		["text"] = "Show Item Icons",
-		["default"] = false,
+		["tooltip"] = "Show Item Icons\n" ..
+			"Adds the ability to display icons above items, including items inside chests.",
+		["value_type"] = "boolean",
+		["options"] = {
+			{text = "Off", value = false},
+			{text = "On", value = true},
+		},
+		["default"] = 1, -- Default first option is enabled. In this case Off
 		["hide_options"] = {
 			{
 				false,
 				mode = "hide",
 				options = {
-					"cb_show_items_mode"
+					"cb_show_items_mode",
+					"cb_show_items_range",
+					"cb_show_items_size",
 				}
 			},
 			{
 				true,
 				mode = "show",
 				options = {
-					"cb_show_items_mode"
+					"cb_show_items_mode",
+					"cb_show_items_range",
+					"cb_show_items_size",
 				}
 			}
 		},
@@ -45,37 +60,21 @@ mod.widget_settings = {
 		["widget_type"] = "dropdown",
 		["text"] = "Mode",
 		["tooltip"] = "Mode\n" ..
-			"Shows icons above items.\n" ..
+			"Show icons above items.\n" ..
 			"\n" ..
-			"Off: No Item icons will be visable.\n" ..
 			"All: All items icons will be visable\n" ..
 			"Custom: Selected items will be only be visable.",
 		["value_type"] = "number",
 		["options"] = {
-			{text = "Off", value = 1},
-			{text = "All", value = 2},
-			{text = "Custom", value = 3},
+			{text = "All", value = 1},
+			{text = "Custom", value = 2},
 		},
-		["default"] = 1, -- Default first option is enabled. In this case Off
+		["default"] = 1, -- Default first option is enabled. In this case All
 		["hide_options"] = {
 			{
 				1,
 				mode = "hide",
 				options = {
-					"cb_show_items_range",
-					"cb_show_items_size",
-					"cb_show_items_custom_health",
-					"cb_show_items_custom_potion",
-					"cb_show_items_custom_bomb",
-					"cb_show_items_custom_grim",
-					"cb_show_items_custom_tome",
-					"cb_show_items_custom_lorebook_page",
-				}
-			},
-			{
-				2,
-				mode = "hide",
-				options = {
 					"cb_show_items_custom_health",
 					"cb_show_items_custom_potion",
 					"cb_show_items_custom_bomb",
@@ -88,16 +87,6 @@ mod.widget_settings = {
 				2,
 				mode = "show",
 				options = {
-					"cb_show_items_range",
-					"cb_show_items_size",
-				}
-			},
-			{
-				3,
-				mode = "show",
-				options = {
-					"cb_show_items_range",
-					"cb_show_items_size",
 					"cb_show_items_custom_health",
 					"cb_show_items_custom_potion",
 					"cb_show_items_custom_bomb",
@@ -225,8 +214,8 @@ mod.items = {
 -- ##### Options ######################################################################################################
 -- ####################################################################################################################
 mod.create_options = function()
-	local group = "items"
-	Mods.option_menu:add_group(group, "Show Items")
+	local group = "cheats"
+	Mods.option_menu:add_group(group, "Gameplay Cheats")
 	Mods.option_menu:add_item(group, mod.widget_settings.SHOW, true)
 	Mods.option_menu:add_item(group, mod.widget_settings.MODE)
 	Mods.option_menu:add_item(group, mod.widget_settings.CUSTOM.HEALTH)
@@ -248,14 +237,15 @@ mod.create_icon = function(unit, pickup_name)
 	local viewport = ScriptWorld.viewport(world, player.viewport_name)
 	local camera = ScriptViewport.camera(viewport)
 
+	EchoConsole(pickup_name)
 	local item_settings = mod.items[pickup_name]
 
-	if mod.get(mod.widget_settings.MODE) == 1 or item_settings == nil then
+	if not mod.get(mod.widget_settings.SHOW) or item_settings == nil then
 		return
 	end
 
 	local setting = mod.widget_settings.CUSTOM[item_settings.setting]
-	if mod.get(mod.widget_settings.MODE) == 3 and mod.get(setting) == false then
+	if mod.get(mod.widget_settings.MODE) == 2 and mod.get(setting) == false then
 		return
 	end
 
