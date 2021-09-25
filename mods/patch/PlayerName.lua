@@ -9,19 +9,18 @@
 	Option for health color coding.
 
   Version history:
-	1.2.0 - ported from VMF to QoL
-	1.2.1 - added option to change the font size.
+	1.0.0 release
+	1.0.1 removed missing material
+	1.1.0 characters in insta kill state will have white names
+	1.1.1 options moved to hud group
+	1.2.0 transelated to English and Dutch
+	1.3.0 ported from VMF to QoL, sorry no dutch
+	1.2.1 added option to change the font size, menu reorg to better fit to QoL
 --]]
 
 local mod_name = "PlayerName"
-local oi = OptionsInjector
-
 PlayerName = {}
 local mod = PlayerName
-
-mod.get = Application.user_setting
-mod.set = Application.set_user_setting
-mod.save = Application.save_user_settings
 
 mod.widget_settings = {
 	ACTIVATE = {
@@ -103,21 +102,27 @@ mod.widget_settings = {
 
 mod.gui = nil
 
--- ####################################################################################################################
--- ##### Options ######################################################################################################
--- ####################################################################################################################
-mod.create_options = function()
-	Mods.option_menu:add_group("hud_group", "HUD Improvements")
+--[[
+  Options
+]]--
 
-	Mods.option_menu:add_item("hud_group", mod.widget_settings.ACTIVATE, true)
-	Mods.option_menu:add_item("hud_group", mod.widget_settings.FONT_SIZE)
-	Mods.option_menu:add_item("hud_group", mod.widget_settings.COLOR)
-	Mods.option_menu:add_item("hud_group", mod.widget_settings.ALPHA)
+mod.create_options = function()
+	local group = "hud_group"
+	Mods.option_menu:add_group(group, "HUD Improvements")
+	Mods.option_menu:add_item(group, mod.widget_settings.ACTIVATE, true)
+	Mods.option_menu:add_item(group, mod.widget_settings.FONT_SIZE)
+	Mods.option_menu:add_item(group, mod.widget_settings.COLOR)
+	Mods.option_menu:add_item(group, mod.widget_settings.ALPHA)
 end
 
--- ####################################################################################################################
--- ##### Function #####################################################################################################
--- ####################################################################################################################
+--[[
+  Functions
+]]--
+
+mod.get = function(data)
+	return Application.user_setting(data.save)
+end
+
 mod.init = function()
 	mod.gui = World.create_world_gui(
 		Application.main_world(),
@@ -129,9 +134,10 @@ mod.init = function()
 	)
 end
 
--- ####################################################################################################################
--- ##### Hook #########################################################################################################
--- ####################################################################################################################
+--[[
+  Hooks
+]]--
+
 Mods.hook.set(mod_name, "StateInGameRunning.event_game_started", function(func, ...)
 	func(...)
 
@@ -147,11 +153,11 @@ end)
 Mods.hook.set(mod_name, "MatchmakingManager.update", function(func, ...)
 	func(...)
 
-	if mod.get(mod.widget_settings.ACTIVATE.save) then
+	if mod.get(mod.widget_settings.ACTIVATE) then
 		pcall(function()
 			local human_players = Managers.player:human_players()
 
-			local font_size = mod.get(mod.widget_settings.FONT_SIZE.save) / 1000
+			local font_size = mod.get(mod.widget_settings.FONT_SIZE) / 1000
 			local font = "gw_body_32"
 			local font_material = "materials/fonts/" .. font
 
@@ -171,11 +177,11 @@ Mods.hook.set(mod_name, "MatchmakingManager.update", function(func, ...)
 					local text_offset = Vector3(-text_width/2, 0.3, 0)
 
 					-- Generate player name transparancy
-					local alpha = 2.55 * mod.get(mod.widget_settings.ALPHA.save)
+					local alpha = 2.55 * mod.get(mod.widget_settings.ALPHA)
 
 					-- Generate player name color
 					local color = Color(0, 0, 0, 0)
-					if mod.get(mod.widget_settings.COLOR.save) == "by_health" then
+					if mod.get(mod.widget_settings.COLOR) == "by_health" then
 						-- Get health
 						local health_extension = ScriptUnit.extension(player_unit, "health_system")
 						local health_percent = health_extension:current_health_percent()
@@ -193,7 +199,7 @@ Mods.hook.set(mod_name, "MatchmakingManager.update", function(func, ...)
 							end
 						end
 					else
-						color = Colors.get_color_with_alpha(mod.get(mod.widget_settings.COLOR.save), alpha)
+						color = Colors.get_color_with_alpha(mod.get(mod.widget_settings.COLOR), alpha)
 					end
 
 					-- Draw
@@ -207,8 +213,9 @@ Mods.hook.set(mod_name, "MatchmakingManager.update", function(func, ...)
 	end
 end)
 
--- ####################################################################################################################
--- ##### Start ########################################################################################################
--- ####################################################################################################################
+--[[
+	Start
+]]--
+
 mod.create_options()
 mod.init()
