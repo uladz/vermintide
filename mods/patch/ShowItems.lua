@@ -1,8 +1,9 @@
 --[[
 	Name: ShowItems (ported from VMF)
+	Link: https://www.moddb.com/downloads/show-items
 	Author: unknown
 	Updated by: uladz
-	Version: 1.1.0
+	Version: 1.1.1 (9/24/2021)
 
 	Adds the ability to display icons above items, including items inside chests.
 	Go to Mod Settings -> Items -> Show Item Icons to tweak settings to your liking.
@@ -11,15 +12,12 @@ Changelog
 	1.0.0 release
 	1.0.1 fixed grim title in options
 	1.1.0 ported from VMF to QoL, fixed menus, no german lang
+	1.1.1 added support for small ammo as well, fixed icon position
 ]]--
 
 mod_name = "ShowItems"
 ShowItems = {}
 local mod = ShowItems
-
-mod.get = function(data)
-	return Application.user_setting(data.save)
-end
 
 mod.widget_settings = {
 	SHOW = {
@@ -81,6 +79,7 @@ mod.widget_settings = {
 					"cb_show_items_custom_grim",
 					"cb_show_items_custom_tome",
 					"cb_show_items_custom_lorebook_page",
+					"cb_show_items_custom_small_ammo",
 				}
 			},
 			{
@@ -93,6 +92,7 @@ mod.widget_settings = {
 					"cb_show_items_custom_grim",
 					"cb_show_items_custom_tome",
 					"cb_show_items_custom_lorebook_page",
+					"cb_show_items_custom_small_ammo",
 				}
 			},
 		},
@@ -103,7 +103,7 @@ mod.widget_settings = {
 		["text"] = "Distance",
 		["tooltip"] = "Distance\n" ..
 			"Set the maximum distance to show items.",
-		["range"] = {2, 1000},
+		["range"] = {1, 500},
 		["default"] = 100,
 	},
 	SIZE = {
@@ -150,6 +150,12 @@ mod.widget_settings = {
 			["save"] = "cb_show_items_custom_lorebook_page",
 			["widget_type"] = "checkbox",
 			["text"] = "Lorebook Page",
+			["default"] = false,
+		},
+		SMALL_AMMO = {
+			["save"] = "cb_show_items_custom_small_ammo",
+			["widget_type"] = "checkbox",
+			["text"] = "Small Ammo",
 			["default"] = false,
 		},
 	}
@@ -208,11 +214,17 @@ mod.items = {
 		icon = "consumables_book_lit",
 		setting = "LOREBOOK_PAGE"
 	},
+	all_ammo_small = {
+		icon = "weapon_generic_icon_crossbow_lit",
+		setting = "SMALL_AMMO",
+		width = 3
+	},
 }
 
--- ####################################################################################################################
--- ##### Options ######################################################################################################
--- ####################################################################################################################
+--[[
+  Options
+]]--
+
 mod.create_options = function()
 	local group = "cheats"
 	Mods.option_menu:add_group(group, "Gameplay Cheats")
@@ -224,28 +236,37 @@ mod.create_options = function()
 	Mods.option_menu:add_item(group, mod.widget_settings.CUSTOM.TOME)
 	Mods.option_menu:add_item(group, mod.widget_settings.CUSTOM.GRIM)
 	Mods.option_menu:add_item(group, mod.widget_settings.CUSTOM.LOREBOOK_PAGE)
+	Mods.option_menu:add_item(group, mod.widget_settings.CUSTOM.SMALL_AMMO)
 	Mods.option_menu:add_item(group, mod.widget_settings.RANGE)
 	Mods.option_menu:add_item(group, mod.widget_settings.SIZE)
 end
 
--- ####################################################################################################################
--- ##### Functions ####################################################################################################
--- ####################################################################################################################
+--[[
+  Functions
+]]--
+
+mod.get = function(data)
+	return Application.user_setting(data.save)
+end
+
 mod.create_icon = function(unit, pickup_name)
 	local player = Managers.player:local_player()
 	local world = Managers.world:world("level_world")
 	local viewport = ScriptWorld.viewport(world, player.viewport_name)
 	local camera = ScriptViewport.camera(viewport)
 
-	EchoConsole(pickup_name)
-	local item_settings = mod.items[pickup_name]
+	if not mod.get(mod.widget_settings.SHOW) then
+		return
+	end
 
-	if not mod.get(mod.widget_settings.SHOW) or item_settings == nil then
+	--EchoConsole(pickup_name)
+	local item_settings = mod.items[pickup_name]
+	if item_settings == nil then
 		return
 	end
 
 	local setting = mod.widget_settings.CUSTOM[item_settings.setting]
-	if mod.get(mod.widget_settings.MODE) == 2 and mod.get(setting) == false then
+	if mod.get(mod.widget_settings.MODE) == 2 and not mod.get(setting) then
 		return
 	end
 
@@ -254,19 +275,24 @@ mod.create_icon = function(unit, pickup_name)
 		local position2d, depth = Camera.world_to_screen(camera, POSITION_LOOKUP[unit])
 
 		if distance > 2 and distance < mod.get(mod.widget_settings.RANGE) and depth < 1 then
-			local pos = Vector3(position2d[1], position2d[2], 200)
+			local x = item_settings.height or 1
+			local y = item_settings.width or 1
+			local size = mod.get(mod.widget_settings.SIZE)
+
+			local pos = Vector3(position2d[1]-y/2*size, position2d[2], 200)
+			local size2 = Vector2(size*y, size*x)
 
 			safe_pcall(function()
-				local size = Vector2(mod.get(mod.widget_settings.SIZE), mod.get(mod.widget_settings.SIZE))
-				Mods.gui.draw_icon(item_settings.icon, pos, nil, size)
+				Mods.gui.draw_icon(item_settings.icon, pos, nil, size2)
 			end)
 		end
 	end
 end
 
--- ####################################################################################################################
--- ##### Hook #########################################################################################################
--- ####################################################################################################################
+--[[
+	Hooks
+]]--
+
 Mods.hook.set(mod_name, "OutlineSystem.update", function(func, self, ...)
 	if Managers.matchmaking.ingame_ui.hud_visible then
 		for _, unit in pairs(self.units) do
@@ -289,7 +315,8 @@ Mods.hook.set(mod_name, "OutlineSystem.outline_unit", function(func, ...)
 	return
 end)
 
--- ####################################################################################################################
--- ##### Start ########################################################################################################
--- ####################################################################################################################
+--[[
+	Start
+]]--
+
 mod.create_options()
