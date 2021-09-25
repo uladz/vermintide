@@ -1,21 +1,21 @@
 --[[
-	Player Name (ported from VMF)
+	Name: Player Name (ported from VMF)
 	Author: IamLupo
 	Updated: uladz
-	Version: 1.2.1
+	Version: 1.3.1
 	Original link: https://www.nexusmods.com/vermintide/mods/26
 
 	Displays player names above their character.
 	Option for health color coding.
 
   Version history:
-	1.0.0 release
-	1.0.1 removed missing material
-	1.1.0 characters in insta kill state will have white names
-	1.1.1 options moved to hud group
-	1.2.0 transelated to English and Dutch
-	1.3.0 ported from VMF to QoL, sorry no dutch
-	1.2.1 added option to change the font size, menu reorg to better fit to QoL
+	1.0.0 Release.
+	1.0.1 Removed missing material.
+	1.1.0 Characters in insta kill state will have white names.
+	1.1.1 Options moved to hud group.
+	1.2.0 Transelated to English and Dutch.
+	1.3.0 Ported from VMF to QoL, sorry no dutch.
+	1.3.1 Added option to change the font size, menu reorg to better fit to QoL.
 --]]
 
 local mod_name = "PlayerName"
