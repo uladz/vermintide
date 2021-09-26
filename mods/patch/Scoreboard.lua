@@ -1,38 +1,19 @@
+--[[
+	Name: Scoreboard
+	Author: /u/Grundlid
+	Updated: uladz (since 1.0.1)
+	Version: 1.0.1 (9/25/2021)
+
+	Version history:
+	1.0.0 Release with Qol v15
+	1.0.1 Options moved from "HUD Improvements" to "Scoreboard Improvements".
+]]--
+
 local mod_name = "Scoreboard"
 
 local user_setting = Application.user_setting
 
 local MOD_SETTINGS = {
-	SUB_GROUP = {
-		["save"] = "cb_scoreboard_subgroup",
-		["widget_type"] = "dropdown_checkbox",
-		["text"] = "Scoreboard Changes",
-		["default"] = false,
-		["hide_options"] = {
-			{
-				true,
-				mode = "show",
-				options = {
-					"cb_scoreboard_fixed_order",
-					"cb_damage_taken_enabled",
-					"cb_scoreboard_ff",
-					"cb_scoreboard_ff_self",
-					"cb_scoreboard_player_procs",
-				},
-			},
-			{
-				false,
-				mode = "hide",
-				options = {
-					"cb_scoreboard_fixed_order",
-					"cb_damage_taken_enabled",
-					"cb_scoreboard_ff",
-					"cb_scoreboard_ff_self",
-					"cb_scoreboard_player_procs",
-				},
-			},
-		},
-	},
 	SCOREBOARD_FIXED_ORDER = {
 		["save"] = "cb_scoreboard_fixed_order",
 		["widget_type"] = "stepper",
@@ -100,7 +81,6 @@ local MOD_SETTINGS = {
 		["default"] = 1, -- Off by default
 	},
 }
-
 
 --- new scoreboard categories
 if not StatisticsDefinitions.player.ff then
@@ -542,12 +522,11 @@ end)
 
 --- options
 safe_pcall(function()
-	Mods.option_menu:add_group("hud_group", "HUD Improvements")
-
-	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.SUB_GROUP, true)
-	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.SCOREBOARD_FIXED_ORDER)
-	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.DAMAGE_TAKEN)
-	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.SCOREBOARD_FF)
-	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.SCOREBOARD_FF_SELF)
-	Mods.option_menu:add_item("hud_group", MOD_SETTINGS.SCOREBOARD_PLAYER_PROCS)
+	local group = "scoreboard"
+	Mods.option_menu:add_group(group, "Scoreboard Improvements")
+	Mods.option_menu:add_item(group, MOD_SETTINGS.SCOREBOARD_FIXED_ORDER, true)
+	Mods.option_menu:add_item(group, MOD_SETTINGS.DAMAGE_TAKEN, true)
+	Mods.option_menu:add_item(group, MOD_SETTINGS.SCOREBOARD_FF, true)
+	Mods.option_menu:add_item(group, MOD_SETTINGS.SCOREBOARD_FF_SELF, true)
+	Mods.option_menu:add_item(group, MOD_SETTINGS.SCOREBOARD_PLAYER_PROCS, true)
 end)
