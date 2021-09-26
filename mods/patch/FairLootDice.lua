@@ -1,19 +1,15 @@
 --[[
-	author: Aussiemon
-	
-	-----
- 
-	Copyright 2018 Aussiemon
+	Name: Fair Loot Dice
+	Author: Aussiemon
+	Updated: uladz (since 1.1.0)
+	Version: 1.1.1 (9/25/2021)
+	Link: https://github.com/Aussiemon/Vermintide-JHF-Mods/blob/original_release/mods/patch/FairLootDice.lua
 
-	Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- 
-	-----
-	
 	Modifies the base loot die chance to account for number of chests in a map.
+
+	Version history:
+		1.0.0 Uptaken from GIT, last update 2/21/2018.
+		1.1.0 Refactored code and changed menus to bettwe fit QoL.
 --]]
 
 local mod_name = "FairLootDice"
@@ -29,25 +25,40 @@ FairLootDice = {
 		ACTIVE = {
 			["save"] = "cb_fair_loot_dice_enabled",
 			["widget_type"] = "stepper",
-			["text"] = "Fair Loot Dice - Enabled",
+			["text"] = "Fair Loot Dice",
 			["tooltip"] = "Fair Loot Dice\n" ..
-				"Toggle fair loot dice percentage on / off.\n\n" ..
-				"Modifies the base loot die chance to account for number of chests in a map.",
+				"Toggle fair loot dice percentage on/off. Modifies the base loot die chance to account " ..
+				"for number of chests in a map.",
 			["value_type"] = "boolean",
 			["options"] = {
 				{text = "Off", value = false},
 				{text = "On", value = true}
 			},
 			["default"] = 1, -- Default second option is enabled. In this case Off
+			["hide_options"] = {
+				{
+					false,
+					mode = "hide",
+					options = {
+						"cb_fair_loot_dice_method",
+					},
+				}, {
+					true,
+					mode = "show",
+					options = {
+						"cb_fair_loot_dice_method",
+					},
+				},
+			},
 		},
 		METHOD = {
 			["save"] = "cb_fair_loot_dice_method",
-			["widget_type"] = "dropdown",
+			["widget_type"] = "stepper",
 			["text"] = "Dice Chance Method",
 			["tooltip"] = "Dice Chance Method\n" ..
-				"Allows choosing how odds are determined.\n\n" ..
-				"-- LENGTH --\nTwo-grimoire maps normalized to at least 17 chests, otherwise 14.\n\n" ..
-				"-- FLAT-RATE --\nAll maps normalized to exactly 17 chests.",
+				"Allows choosing how odds are determined.\n" ..
+				"Length: Two-grimoire maps normalized to at least 17 chests, otherwise 14.\n" ..
+				"Flat-Rate: All maps normalized to exactly 17 chests.",
 			["value_type"] = "number",
 			["options"] = {
 				{text = "Length", value = LENGTH_METHOD},
@@ -137,15 +148,15 @@ mod.calculate_chance = function (num_chests, target_num_chests, reduce_excess)
 	if not reduce_excess and num_chests >= target_num_chests then
 		return normal_chance
 	end
-	
+
 	local min_chance = normal_chance
 	if reduce_excess then
 		min_chance = 0.00
 	end
-	
+
 	local chest_fraction = target_num_chests / num_chests
 	local return_chance = math.max((chest_fraction * normal_chance), min_chance)
-	
+
 	--EchoConsole(tostring(math.floor(return_chance*1000)/10).."% base loot die chance")
 	return math.min(return_chance, .5)
 end
@@ -176,7 +187,7 @@ mod.complex_calculate_chance = function (num_chests, target_num_chests)
 			return return_chance
 		end
 	end
-	
+
 	return_chance = mod.calculate_chance(num_chests, target_num_chests, false) or normal_chance
 	return return_chance
 end
@@ -209,9 +220,10 @@ mod.factorial = function (input)
 end
 
 mod.create_options = function()
-	Mods.option_menu:add_group("FairLootDice", "Fair Loot Dice")
-	Mods.option_menu:add_item("FairLootDice", mod.SETTINGS.ACTIVE, true)
-	Mods.option_menu:add_item("FairLootDice", mod.SETTINGS.METHOD, true)
+	local group = "tweaks"
+	Mods.option_menu:add_group(group, "Gameplay Tweaks")
+	Mods.option_menu:add_item(group, mod.SETTINGS.ACTIVE, true)
+	Mods.option_menu:add_item(group, mod.SETTINGS.METHOD, true)
 end
 
 local get = function(data)
@@ -226,20 +238,20 @@ local save = Application.save_user_settings
 -- #################### Hooks ###############################
 
 Mods.hook.set(mod_name, "DiceKeeper.chest_loot_dice_chance", function (func, ...)
-	
+
 	-- Change odds according to settings
 	if get(mod.SETTINGS.ACTIVE) then
 		if Managers and Managers.state and Managers.state.game_mode then
-		
+
 			-- Take level key and lookup chest information
 			local level_key = Managers.state.game_mode:level_key()
 			if mod.LevelChestNumbers[level_key] then
 				local num_chests = mod.LevelChestNumbers[level_key]
-				
+
 				-- Normalize odds according to setting
 				local calc_method = get(mod.SETTINGS.METHOD) or 1
 				if calc_method == LENGTH_METHOD then
-				
+
 					-- Check mission length
 					if mod.LongLevels[level_key] then
 						local chance = mod.calculate_chance(num_chests, 17, false)
@@ -248,7 +260,7 @@ Mods.hook.set(mod_name, "DiceKeeper.chest_loot_dice_chance", function (func, ...
 						local chance = mod.calculate_chance(num_chests, 14, false)
 						return chance
 					end
-					
+
 				-- Flat-rate normalization
 				elseif calc_method == FLATRATE_METHOD then
 					local chance = mod.calculate_chance(num_chests, 17, true)
@@ -257,7 +269,7 @@ Mods.hook.set(mod_name, "DiceKeeper.chest_loot_dice_chance", function (func, ...
 			end
 		end
 	end
-	
+
 	-- Original function
 	local result = func(...)
 	return result
