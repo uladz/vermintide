@@ -1,7 +1,7 @@
 --[[
   Name: Ping Self Voiceover (ported from VMF)
 	Author: Walterr
-	Updated: uladz
+	Updated: uladz (since 1.2.0)
 	Version: 1.2.1
 	Link: https://www.nexusmods.com/vermintide/mods/23
 
@@ -93,8 +93,8 @@ mod.create_options = function()
 	local group = "ping_self"
 	Mods.option_menu:add_group(group, "Ping Self Voiceover")
 	Mods.option_menu:add_item(group, mod.widget_settings.ACTIVE, true)
-	Mods.option_menu:add_item(group, mod.widget_settings.VOICEOVER)
-	Mods.option_menu:add_item(group, mod.widget_settings.HK_TOGGLE)
+	Mods.option_menu:add_item(group, mod.widget_settings.VOICEOVER, true)
+	Mods.option_menu:add_item(group, mod.widget_settings.HK_TOGGLE, true)
 end
 
 --[[
