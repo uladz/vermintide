@@ -10,7 +10,7 @@
 
 	Version history:
 		1.0.0 Uptaken from GIT, last update 1/25/2018.
-		1.1.0 Refactored code and changed menus to bettwe fit QoL.
+		1.1.0 Refactored code and changed options to better fit QoL mod options.
 --]]
 
 local mod_name = "PagesForever"
