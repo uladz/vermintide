@@ -16,7 +16,7 @@
 		Instead of modifiying existing animations, a copy is created and modified.
 	1.1.0 Added option to turn on or off this cheat.
 		Located in "Gameplay Cheats" mod options group.
-]]--
+--]]
 
 local mod_name = "LockTraits"
 LockTraits = {}

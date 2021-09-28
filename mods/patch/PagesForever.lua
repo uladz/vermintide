@@ -51,7 +51,7 @@ mod.widget_settings = {
 
 --[[
   Options
-]]--
+--]]
 
 mod.create_options = function()
 	local group = "tweaks"
@@ -62,7 +62,7 @@ end
 
 --[[
   Functions
-]]--
+--]]
 
 mod.get = function(data)
 	return Application.user_setting(data.save)
@@ -111,7 +111,7 @@ end
 
 --[[
   Hooks
-]]--
+--]]
 
 Mods.hook.set(mod_name, "Pickups.lorebook_pages.lorebook_page.hide_func", function (func, ...)
 	local result = func(...)
@@ -135,6 +135,6 @@ end)
 
 --[[
   Start
-]]--
+--]]
 
 mod.create_options()

@@ -54,7 +54,7 @@ local Application_user_setting = Application.user_setting
 
 --[[
   Options
-]]--
+--]]
 
 mod.create_options = function()
 	local group = "tweaks"
@@ -64,7 +64,7 @@ end
 
 --[[
   Functions
-]]--
+--]]
 
 mod.trigger_potion_dialogue_event = function(action_extension)
 	local current_action = action_extension.current_action
@@ -86,7 +86,7 @@ end
 
 --[[
   Hooks
-]]--
+--]]
 
 Mods.hook.set(mod_name, "ActionPotion.finish", function (func, self, reason, ...)
 
@@ -101,6 +101,6 @@ end)
 
 --[[
   Start
-]]--
+--]]
 
 mod.create_options()

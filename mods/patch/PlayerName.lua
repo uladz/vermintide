@@ -104,7 +104,7 @@ mod.gui = nil
 
 --[[
   Options
-]]--
+--]]
 
 mod.create_options = function()
 	local group = "hud_group"
@@ -117,7 +117,7 @@ end
 
 --[[
   Functions
-]]--
+--]]
 
 mod.get = function(data)
 	return Application.user_setting(data.save)
@@ -136,7 +136,7 @@ end
 
 --[[
   Hooks
-]]--
+--]]
 
 Mods.hook.set(mod_name, "StateInGameRunning.event_game_started", function(func, ...)
 	func(...)
@@ -215,7 +215,7 @@ end)
 
 --[[
 	Start
-]]--
+--]]
 
 mod.create_options()
 mod.init()

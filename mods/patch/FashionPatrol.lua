@@ -52,7 +52,7 @@ mod.white_storm_variation = {
 
 --[[
   Options
-]]--
+--]]
 
 mod.create_options = function()
 	local group = "tweaks"
@@ -63,7 +63,7 @@ end
 
 --[[
   Functions
-]]--
+--]]
 
 mod.trigger_stormvermin_variation = function(unit)
 	local variation_settings = mod.white_storm_variation
@@ -107,7 +107,7 @@ end
 
 --[[
   Hooks
-]]--
+--]]
 
 Mods.hook.set(mod_name, "UnitSpawner.spawn_local_unit_with_extensions", function (func, self, unit_name, unit_template_name, extension_init_data, ...)
 	local unit, unit_template_name = func(self, unit_name, unit_template_name, extension_init_data, ...)
@@ -126,7 +126,7 @@ end)
 
 --[[
   Start
-]]--
+--]]
 
 mod.create_options()
 

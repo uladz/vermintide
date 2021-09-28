@@ -7,7 +7,7 @@
 	Version history:
 	1.0.0 Release with Qol v15
 	1.0.1 Options moved from "HUD Improvements" to "Scoreboard Improvements".
-]]--
+--]]
 
 local mod_name = "Scoreboard"
 

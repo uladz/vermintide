@@ -112,7 +112,7 @@ mod.display_info = {
 
 --[[
   Options
-]]--
+--]]
 
 mod.create_options = function()
 	local group = "trueflight_tweaks"
@@ -122,7 +122,7 @@ end
 
 --[[
   Functions
-]]--
+--]]
 
 mod.get = function(data)
 	return Application.user_setting(data.save)
@@ -153,7 +153,7 @@ mod.display_info.ActionTrueFlightBowAim.compute_level_color = compute_level_colo
 
 --[[
   Hooks
-]]--
+--]]
 
 Mods.hook.set(mod_name, "ActionCharge.client_owner_post_update", function (func, self, dt, t, ...)
 	func(self, dt, t, ...)
@@ -277,6 +277,6 @@ end)
 
 --[[
 	Start
-]]--
+--]]
 
 mod.create_options()

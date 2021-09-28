@@ -87,7 +87,7 @@ mod.voice_settings = {
 
 --[[
   Options
-]]--
+--]]
 
 mod.create_options = function()
 	local group = "ping_self"
@@ -99,7 +99,7 @@ end
 
 --[[
   Hooks
-]]--
+--]]
 
 Mods.hook.set(mod_name, "DialogueSystem.rpc_play_dialogue_event", function(orig_func, self, sender, go_id, is_level_unit, dialogue_id, dialogue_index)
 	if self.is_server then
@@ -119,7 +119,7 @@ end)
 
 --[[
   Start
-]]--
+--]]
 
 local status, err = pcall(mod.create_options)
 if err ~= nil then

@@ -189,7 +189,7 @@ function(func, self, sender, channel_id, message_sender, message, localization_p
 	if Managers.player.is_server then
 		--[[
 			If someone sends a message is a different peer_id
-		]]--
+		--]]
 		if sender ~= message_sender then
 			local player = Managers.player:player_from_peer_id(sender, 1)
 			local victim = Managers.player:player_from_peer_id(message_sender, 1)
@@ -207,7 +207,7 @@ function(func, self, sender, channel_id, message_sender, message, localization_p
 			The case is, people send message as a proxy through the server,
 			This means the "sender" parameter is always the server peer_id. We can
 			not know for sure who it officially sended the orginal message.
-		]]--
+		--]]
 		local local_player = Managers.player:local_player()
 		
 		if local_player and local_player.peer_id == message_sender then

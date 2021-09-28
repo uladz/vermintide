@@ -16,7 +16,7 @@
 		1.1.0 Merged with Aussiemon's GIT version of this mod.
 		1.2.0 Added fire granade, options to enable barrel and extra items, spawn logic fixes, some
 			code refactoring to unify with QoL code style.
-]]--
+--]]
 
 local mod_name = "PubBrawl"
 PubBrawl = {}
@@ -68,7 +68,7 @@ mod.spawn_time = 0
 
 --[[
   Options
-]]--
+--]]
 
 mod.create_options = function()
 	local group = "funny"
@@ -80,7 +80,7 @@ end
 
 --[[
   Functions
-]]--
+--]]
 
 mod.get = function(data)
 	if data then
@@ -172,7 +172,7 @@ end
 
 --[[
   Hooks
-]]--
+--]]
 
 -- Handles initial spawning of pub items
 Mods.hook.set(mod_name, "StateInGameRunning.event_game_started", function(func, self)
@@ -222,6 +222,6 @@ end)
 
 --[[
   Start
-]]--
+--]]
 
 mod.create_options()

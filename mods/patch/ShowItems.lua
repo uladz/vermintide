@@ -13,7 +13,7 @@ Changelog
 	1.0.1 fixed grim title in options
 	1.1.0 ported from VMF to QoL, fixed menus, no german lang
 	1.1.1 added support for small ammo as well, fixed icon position
-]]--
+--]]
 
 mod_name = "ShowItems"
 ShowItems = {}
@@ -223,7 +223,7 @@ mod.items = {
 
 --[[
   Options
-]]--
+--]]
 
 mod.create_options = function()
 	local group = "cheats"
@@ -243,7 +243,7 @@ end
 
 --[[
   Functions
-]]--
+--]]
 
 mod.get = function(data)
 	return Application.user_setting(data.save)
@@ -291,7 +291,7 @@ end
 
 --[[
 	Hooks
-]]--
+--]]
 
 Mods.hook.set(mod_name, "OutlineSystem.update", function(func, self, ...)
 	if Managers.matchmaking.ingame_ui.hud_visible then
@@ -317,6 +317,6 @@ end)
 
 --[[
 	Start
-]]--
+--]]
 
 mod.create_options()

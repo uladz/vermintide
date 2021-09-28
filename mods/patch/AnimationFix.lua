@@ -17,7 +17,7 @@ local mod_name = "Animation"
 	
 	Detail:
 		Some enemies can have missing events on strange situations. Like spawning a pig and letting him fall.
-]]--
+--]]
 
 Mods.hook.set(mod_name, "GameNetworkManager.anim_event", function(func, self, unit, event)
 	local go_id = self.unit_storage:go_id(unit)
