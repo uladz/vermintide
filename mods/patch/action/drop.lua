@@ -23,7 +23,7 @@ if slot_name == "slot_healthkit" or slot_name == "slot_potion"  or slot_name == 
 	Mods.spawnItem(item_name)
 
 	-- Feedback
-	if not mod.get(mod.SETTINGS.HK_FEEDBACK.save) then
-		EchoConsole("Dropped: " .. item_name)
+	if mod.get(mod.widget_settings.ECHO) then
+		EchoConsole("Dropped " .. item_name)
 	end
 end

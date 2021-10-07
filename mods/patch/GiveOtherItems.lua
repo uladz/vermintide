@@ -1,14 +1,25 @@
 --[[
-	Ported from VMF 0.17.4 to QoL, version as of 7/3/2017.
+	Name: Give Other Items
 	Author: grasmann
+	Updated by: uladz (since 1.1.0)
+	Version: 1.1.1 (10/6/2021)
 
-	Patch GiveOtherItems:
-		Allows all items except for the grim to be given to other players.
-		The grim is missing an attribute which crashes the game for players who are not using the mod.
+	Allows all items except for the grim to be given to other players. The grim is missing an
+	attribute which crashes the game for players who are not using the mod.
 
-		Set ACTIVATE_GRIM to true to enable grims anyways.
-			You can give grims to bots on your own server and players using the mod.
-			Players without the mod will crash if you give them a grim and the grim will be lost in spaaaaace.
+	Set ACTIVATE_GRIM to true to enable grims anyways. You can give grims to bots on your own server
+	and players using the mod. Players without the mod will crash if you give them a grim and the
+	grim will be lost in spaaaaace.
+
+	This mod is intended to work with QoL modpack. To "install" copy the file to
+	"<game>\binaries\mods\patch" folder. To enable go to "Options" -> "Mod Settings" ->
+	"Items" and turn on "Give Other Items" option.
+
+	Version history:
+		1.0.0 Release.
+		1.1.0 Ported from VMF 0.17.4 to QoL, version as of 7/3/2017.
+		1.1.1 Fixed error printed in "attempt to index field 'SETTINGS' (a nil value" console every
+			time you dropped an item, added a new option to enable/disable drop item echo in chat.
 --]]
 
 local mod_name = "GiveOtherItems"
@@ -90,6 +101,19 @@ mod.widget_settings = {
 		},
 		["exec"] = {"patch/action", "drop"},
 	},
+	ECHO = {
+		["save"] =	"cb_give_other_items_echo",
+		["widget_type"]	=	"stepper",
+		["text"] =	"Print Dropped Item Message",
+		["tooltip"] =	"Print Dropped Item Message\n" ..
+			"Prints out a local chat notification about the dropped item.",
+		["value_type"] =	"boolean",
+		["options"] = {
+			{text = "Off", value = false},
+			{text = "On", value = true},
+		},
+		["default"] = 1, -- Default first option is enabled. In this case Off
+	},
 }
 
 mod.activate_grim = false
@@ -104,13 +128,14 @@ end
 -- ##### Options ######################################################################################################
 -- ####################################################################################################################
 mod.create_options = function()
-	Mods.option_menu:add_group("items", "Items")
-
-	Mods.option_menu:add_item("items", mod.widget_settings.MODE, true)
-	Mods.option_menu:add_item("items", mod.widget_settings.BOMB)
-	Mods.option_menu:add_item("items", mod.widget_settings.MEDKIT)
-	Mods.option_menu:add_item("items", mod.widget_settings.TOME)
-	Mods.option_menu:add_item("items", mod.widget_settings.DROP, true)
+	local group = "items_group"
+	Mods.option_menu:add_group(group, "Items")
+	Mods.option_menu:add_item(group, mod.widget_settings.MODE, true)
+	Mods.option_menu:add_item(group, mod.widget_settings.BOMB)
+	Mods.option_menu:add_item(group, mod.widget_settings.MEDKIT)
+	Mods.option_menu:add_item(group, mod.widget_settings.TOME)
+	Mods.option_menu:add_item(group, mod.widget_settings.DROP, true)
+	Mods.option_menu:add_item(group, mod.widget_settings.ECHO, true)
 end
 
 -- ####################################################################################################################
