@@ -1,23 +1,31 @@
 --[[
-	Name: ShowItems (ported from VMF)
-	Link: https://www.moddb.com/downloads/show-items
-	Author: unknown
-	Updated by: uladz
-	Version: 1.1.1 (9/24/2021)
+	Name: Show Items
+	Author: <unknown>, maybe IamLupo?
+	Updated by: uladz (since 1.1.0)
+	Version: 1.1.2 (10/5/2021)
 
-	Adds the ability to display icons above items, including items inside chests.
-	Go to Mod Settings -> Items -> Show Item Icons to tweak settings to your liking.
+	Adds the ability to display icons above items, including items inside chests. This allows you
+	to spot pickup from afar and makes them hard to miss through a map playthrough.
 
-Changelog
-	1.0.0 release
-	1.0.1 fixed grim title in options
-	1.1.0 ported from VMF to QoL, fixed menus, no german lang
-	1.1.1 added support for small ammo as well, fixed icon position
+	This mod is intended to work with QoL modpack. To "install" copy the file to the
+	"<game>\binaries\mods\patch" folder. To enable it go to "Options" -> "Mod Settings" ->
+	"Gameplay Cheats" and turn on "Show Item Icons" option.
+
+	Version history:
+		1.0.0 Released on moddb https://www.moddb.com/downloads/show-items.
+		1.0.1 Fixed grim title in options.
+		1.1.0 Ported from VMF to QoL, fixed menus, no german lang
+		1.1.1 Added support for small ammo as well, fixed icon position.
+		1.1.2 Added support for full ammo boxes as well. Improved mod description.
 --]]
 
-mod_name = "ShowItems"
+local mod_name = "ShowItems"
 ShowItems = {}
 local mod = ShowItems
+
+--[[
+  Variables
+--]]
 
 mod.widget_settings = {
 	SHOW = {
@@ -25,7 +33,8 @@ mod.widget_settings = {
 		["widget_type"] = "stepper",
 		["text"] = "Show Item Icons",
 		["tooltip"] = "Show Item Icons\n" ..
-			"Adds the ability to display icons above items, including items inside chests.",
+			"Adds the ability to display icons above items, including items inside chests. This " ..
+			"allows you to spot pickup from afar and makes them hard to miss through a map playthrough.",
 		["value_type"] = "boolean",
 		["options"] = {
 			{text = "Off", value = false},
@@ -80,6 +89,7 @@ mod.widget_settings = {
 					"cb_show_items_custom_tome",
 					"cb_show_items_custom_lorebook_page",
 					"cb_show_items_custom_small_ammo",
+					"cb_show_items_custom_ammo_box",
 				}
 			},
 			{
@@ -93,6 +103,7 @@ mod.widget_settings = {
 					"cb_show_items_custom_tome",
 					"cb_show_items_custom_lorebook_page",
 					"cb_show_items_custom_small_ammo",
+					"cb_show_items_custom_ammo_box",
 				}
 			},
 		},
@@ -158,6 +169,12 @@ mod.widget_settings = {
 			["text"] = "Small Ammo",
 			["default"] = false,
 		},
+		AMMO_BOX = {
+			["save"] = "cb_show_items_custom_ammo_box",
+			["widget_type"] = "checkbox",
+			["text"] = "Ammo Box",
+			["default"] = false,
+		},
 	}
 }
 
@@ -219,6 +236,11 @@ mod.items = {
 		setting = "SMALL_AMMO",
 		width = 3
 	},
+	all_ammo = {
+		icon = "weapon_generic_icon_repeating_pistol_lit",
+		setting = "AMMO_BOX",
+		width = 3
+	},
 }
 
 --[[
@@ -237,6 +259,7 @@ mod.create_options = function()
 	Mods.option_menu:add_item(group, mod.widget_settings.CUSTOM.GRIM)
 	Mods.option_menu:add_item(group, mod.widget_settings.CUSTOM.LOREBOOK_PAGE)
 	Mods.option_menu:add_item(group, mod.widget_settings.CUSTOM.SMALL_AMMO)
+	Mods.option_menu:add_item(group, mod.widget_settings.CUSTOM.AMMO_BOX)
 	Mods.option_menu:add_item(group, mod.widget_settings.RANGE)
 	Mods.option_menu:add_item(group, mod.widget_settings.SIZE)
 end
@@ -246,7 +269,9 @@ end
 --]]
 
 mod.get = function(data)
-	return Application.user_setting(data.save)
+	if data then
+		return Application.user_setting(data.save)
+	end
 end
 
 mod.create_icon = function(unit, pickup_name)
