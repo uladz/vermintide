@@ -14,5 +14,6 @@ Mods.commands = {
 	{"/lorebook",	 false, 	"commands", 	"lorebook"},
 	{"/remind",	 true,	 	"commands", 	"remind"},
 	{"/onslaught",	 false,	 	"commands", 	"onslaught"},
+	{"/chests",	 false,	 	"commands", 	"chest_ping"},
 
 }
