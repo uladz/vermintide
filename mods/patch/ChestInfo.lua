@@ -1,21 +1,27 @@
 --[[
-	ChestInfo:
-		Shows loot dice chances in the chat
+	Name: Chest Info (ported from VMF)
+	Author: IamLupo
+	Updated by: uladz
+	Version: 1.1.0
 
-		ChestInfo v1.1.1
-		Author: IamLupo
+	Description:
+	Displays the percentage of getting a loot die when opening chests in the chat window. This is
+	somewhat useless mod as it does not change gameplay in any way but it provides you some extra
+	information about your luck chances for each map.
 
-		Displays the percentage of getting a loot die when opening chests.
-		Go to Mod Settings -> Items -> Show Loot Die Chance to toggle.
-		Off by default.
+	This mod is intended to work with QoL modpack. To "install" copy the file to the
+	"<game>\binaries\mods\patch" folder. To enable it go to "Options" -> "Mod Settings" ->
+	 "Gameplay Info" and turn on "Show Loot Die Chance" option. Off by default.
 
-		Changelog
-		1.1.1
-		- Added language support en, de
-		1.1.0
-		- Made fix for outline crash
-		1.0.0
-		- Release
+	Version history:
+	1.0.0 release.
+	1.1.0 made fix for outline crash.
+	1.1.1 Added language support en, de.
+	1.2.0 Ported from VMF 0.17.4 to QoL, sorry no german.
+	1.2.1 Moved options to "Gameplay Info" and "Gameplay Cheats" menus to better fit QoL menu
+		structure. Renamed command to "/chests". Fixed loot die chance message showing period numbers
+		like "17.333333333333333333%" and make a bit more funny. Updated patched source code to
+		official Patch 1.11 version.
 --]]
 
 local mod_name = "ChestInfo"
@@ -52,8 +58,25 @@ mod.widget_settings = {
 }
 
 mod.was_enabled = false
-
 mod.refresh = 0
+
+--[[
+  Options
+]]--
+
+mod.create_options = function()
+	local group = "info_group"
+	Mods.option_menu:add_group(group, "Gameplay Info")
+	Mods.option_menu:add_item(group, mod.widget_settings.INFO, true)
+
+	local group = "cheats"
+	Mods.option_menu:add_group(group, "Gameplay Cheats")
+	Mods.option_menu:add_item(group, mod.widget_settings.PING, true)
+end
+
+--[[
+  Functions
+]]--
 
 mod.get = function(data)
 	if data then
@@ -71,19 +94,6 @@ mod.save = function()
 	Application.save_user_settings()
 end
 
--- ####################################################################################################################
--- ##### Options ######################################################################################################
--- ####################################################################################################################
-mod.create_options = function()
-	Mods.option_menu:add_group("chest", "Chest")
-
-	Mods.option_menu:add_item("chest", mod.widget_settings.INFO, true)
-	Mods.option_menu:add_item("chest", mod.widget_settings.PING, true)
-end
-
--- ####################################################################################################################
--- ##### Functions ####################################################################################################
--- ####################################################################################################################
 mod.is_chest = function(unit)
 	local interaction_type = Unit.get_data(unit, "interaction_data", "interaction_type")
 
@@ -105,7 +115,7 @@ end
 
 mod.update = function()
 	-- Ping all chests
-	if mod.get(mod.widget_settings.PING.save) then
+	if mod.get(mod.widget_settings.PING) then
 		for _, world in pairs(Application.worlds()) do
 			for _, unit in pairs(World.units(world)) do
 				if mod.is_chest(unit) then
@@ -136,58 +146,59 @@ mod.update = function()
 	end
 end
 
--- ####################################################################################################################
--- ##### Hook #########################################################################################################
--- ####################################################################################################################
+--[[
+  Hooks
+]]--
+
 local pickup_params = {}
+
 Mods.hook.set(mod_name, "InteractionDefinitions.chest.server.stop",
 function (func, world, interactor_unit, interactable_unit, data, config, t, result)
-	if mod.get(mod.widget_settings.INFO.save) == true then
+	if mod.get(mod.widget_settings.INFO) == true then
 		data.start_time = nil
+		local success = result == InteractionResult.SUCCESS
 		local can_spawn_dice = Unit.get_data(interactable_unit, "can_spawn_dice")
 
-		if not can_spawn_dice then
-			return
-		end
+		if can_spawn_dice then
+			table.clear(pickup_params)
 
-		table.clear(pickup_params)
+			local pickup_name = "loot_die"
+			local dice_keeper = data.dice_keeper
+			local pickup_settings = AllPickups[pickup_name]
+			pickup_params.dice_keeper = dice_keeper
 
-		local pickup_name = "loot_die"
-		local dice_keeper = data.dice_keeper
-		local pickup_settings = AllPickups[pickup_name]
-		pickup_params.dice_keeper = dice_keeper
+			if success and pickup_settings.can_spawn_func(pickup_params) then
+				local buff_extension = ScriptUnit.extension(interactor_unit, "buff_system")
+				local rand = math.random()
+				local chance = dice_keeper:chest_loot_dice_chance()
+				chance = buff_extension:apply_buffs_to_value(chance, StatBuffIndex.INCREASE_LUCK)
 
-		if result == InteractionResult.SUCCESS and pickup_settings.can_spawn_func(pickup_params) then
-			local buff_extension = ScriptUnit.extension(interactor_unit, "buff_system")
-			local rand = math.random()
-			local chance = dice_keeper.chest_loot_dice_chance(dice_keeper)
-			chance = buff_extension.apply_buffs_to_value(buff_extension, chance, StatBuffIndex.INCREASE_LUCK)
+				local msg = string.format("Loot dice has %.1f%% chance and RNG is %.0f", chance*100, rand*100)
+				if rand < chance then
+					msg = msg .. " :)"
+				else
+					msg = msg .. " :("
+				end
+				EchoConsole(msg)
 
-			local chance_str = tostring(tonumber(string.format("%.0f", chance * 1000)) / 10)
-			local rand_str = string.format("%.0f", rand * 100)
-			local message = string.format("Loot dice is %s%% chance and the random number is %s", chance_str, rand_str)
-
-			EchoConsole(message)
-
-			if rand < chance then
-				local extension_init_data = {
-					pickup_system = {
-						has_physics = true,
-						spawn_type = "rare",
-						pickup_name = pickup_name
+				if rand < chance then
+					local extension_init_data = {
+						pickup_system = {
+							has_physics = true,
+							spawn_type = "rare",
+							pickup_name = pickup_name
+						}
 					}
-				}
-				local unit_name = pickup_settings.unit_name
-				local unit_template_name = pickup_settings.unit_template_name or "pickup_unit"
-				local position = Unit.local_position(interactable_unit, 0) + Vector3(0, 0, 0.3)
-				local rotation = Unit.local_rotation(interactable_unit, 0)
+					local unit_name = pickup_settings.unit_name
+					local unit_template_name = pickup_settings.unit_template_name or "pickup_unit"
+					local position = Unit.local_position(interactable_unit, 0) + Vector3(0, 0, 0.3)
+					local rotation = Unit.local_rotation(interactable_unit, 0)
 
-				Managers.state.unit_spawner:spawn_network_unit(unit_name, unit_template_name, extension_init_data, position, rotation)
-				dice_keeper.bonus_dice_spawned(dice_keeper)
+					Managers.state.unit_spawner:spawn_network_unit(unit_name, unit_template_name, extension_init_data, position, rotation)
+					dice_keeper:bonus_dice_spawned()
+				end
 			end
 		end
-
-		Unit.set_data(interactable_unit, "interaction_data", "being_used", false)
 	else
 		func(world, interactor_unit, interactable_unit, data, config, t, result)
 	end
@@ -206,11 +217,16 @@ end)
 --[[
 	Fix: Issue #24
 ]]--
+
 Mods.hook.set(mod_name, "OutlineSystem.outline_unit", function(func, ...)
 	pcall(func, ...)
 end)
 
--- ####################################################################################################################
--- ##### Start ########################################################################################################
--- ####################################################################################################################
-mod.create_options()
+--[[
+	Start
+]]--
+
+local status, err = pcall(mod.create_options)
+if err ~= nil then
+	EchoConsole(err)
+end
