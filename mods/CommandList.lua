@@ -15,5 +15,8 @@ Mods.commands = {
 	{"/remind",	 true,	 	"commands", 	"remind"},
 	{"/onslaught",	 false,	 	"commands", 	"onslaught"},
 	{"/chests",	 false,	 	"commands", 	"chest_ping"},
+	{"/msg",	 true,	 	"commands", 	"msg"},
+	{"/gg",	 false,	 	"commands", 	"gg"},
+	{"/flits",	 true,	 	"commands", 	"flits"},
 
 }

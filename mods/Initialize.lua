@@ -5,9 +5,10 @@ Mods.init = function()
 
 	-- Load settings
 	Mods.exec("", "CommandList")
-	
+
 	-- Load Functions
 	Mods.exec("patch/function", "Table")
+	Mods.exec("patch/function", "TextToGrid")
 	Mods.exec("patch/function", "Mods.hook")
 	Mods.exec("patch/function", "Mods.chat")
 	Mods.exec("patch/function", "Mods.keyboard")
@@ -84,7 +85,7 @@ Mods.init = function()
 			Mods.exec("patch", modname)
 		end
 	end
-	
+
 	-- Draw options menu
 	Mods.option_menu:draw()
 end
